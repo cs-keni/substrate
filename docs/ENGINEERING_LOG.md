@@ -62,3 +62,19 @@
   headless Chromium + the polling watcher). tsc and vite each pass alone;
   retry succeeds. Not a code issue — if it recurs, retry before debugging.
 - Commit: c2cbf39 (seam pass)
+
+## 2026-07-14 (final polish)
+- Camera timeline rhythm: corridor rides sine.inOut instead of linear;
+  exit pull-up lengthened to 2.2 with power2.inOut.
+- Code split: gl/stage now a dynamic import — initial JS 680→149 kB
+  (57 kB gzip); the 533 kB stage chunk loads while the preloader plays,
+  and the preloader wipe awaits it (with a catch so GL failure can't trap
+  users on the loader).
+- Anchor router (src/app/anchors.ts): #layer-* targets map to fractions
+  of the journey runway (0.12/0.44/0.76) because the cards live inside
+  the pinned viewport; other anchors smooth-scroll normally. Menu links
+  route through the same resolver. Verified: SEE THE STACK lands at
+  exactly journeyTop−vh+0.12·runway; menu → compute lands on its beat.
+- Hero field base dot alpha 0.22→0.3; footer wordmark letters get hover
+  lift + volt tint; OG title/description/type meta added.
+- Commit: (hash below)

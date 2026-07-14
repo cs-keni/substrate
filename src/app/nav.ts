@@ -1,5 +1,6 @@
 import gsap from 'gsap';
 import { scrollTo, startScroll, stopScroll } from './scroll';
+import { resolveAnchor } from './anchors';
 
 /** Sticky pill nav + full-screen menu with staggered link reveals. */
 export function initNav(): void {
@@ -53,7 +54,7 @@ export function initNav(): void {
     a.addEventListener('click', (e) => {
       e.preventDefault();
       setOpen(false);
-      gsap.delayedCall(0.55, () => scrollTo(a.getAttribute('href')!));
+      gsap.delayedCall(0.55, () => scrollTo(resolveAnchor(a.getAttribute('href')!)));
     });
   });
 

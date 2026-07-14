@@ -208,21 +208,21 @@ export function buildCameraTimeline(world: WorldScene): gsap.core.Timeline {
     // beat 1 — generation close pass (turbines)
     .to(s, { x: -124, z: 14, zoom: 1.7, duration: 1.6 })
     // drift across solar field
-    .to(s, { x: -140, z: 30, zoom: 1.9, duration: 1.6 })
+    .to(s, { x: -140, z: 30, zoom: 1.9, duration: 1.6, ease: 'sine.inOut' })
     // beat 2 — pick up the corridor at the collector yard
     .to(s, { x: -84, z: 40, zoom: 1.5, duration: 1.8 })
-    // ride the traces east
-    .to(s, { x: -30, z: 8, zoom: 1.35, duration: 2.0, ease: 'none' })
+    // ride the traces east — sine keeps momentum without a dead-linear feel
+    .to(s, { x: -30, z: 8, zoom: 1.35, duration: 2.0, ease: 'sine.inOut' })
     // beat 3 — substation hold
     .to(s, { x: 0, z: 0, zoom: 2.3, duration: 1.8 })
     // continue east along second corridor
-    .to(s, { x: 56, z: -14, zoom: 1.4, duration: 1.9, ease: 'none' })
+    .to(s, { x: 56, z: -14, zoom: 1.4, duration: 1.9, ease: 'sine.inOut' })
     // beat 4 — campus arrival wide
     .to(s, { x: 100, z: -26, zoom: 1.1, duration: 1.7 })
     // beat 5 — rack yard close-up
     .to(s, { x: 120, z: -8, zoom: 2.6, duration: 1.8 })
-    // exit: pull up and away
-    .to(s, { x: 106, z: -18, zoom: 0.7, duration: 1.6 });
+    // exit: long slow pull up and away
+    .to(s, { x: 106, z: -18, zoom: 0.7, duration: 2.2, ease: 'power2.inOut' });
 
   tl.eventCallback('onUpdate', world.applyCamera);
   return tl;

@@ -546,6 +546,12 @@
 .footer-mega span {
   display: inline-block;
   will-change: transform;
+  transition: transform 0.35s var(--ease-out), color 0.35s var(--ease-out);
+}
+
+.footer-mega span:hover {
+  transform: translateY(-0.05em);
+  color: var(--volt);
 }
 
 .footer-legal {

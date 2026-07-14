@@ -110,7 +110,7 @@ export function createField(): FieldScene {
         vec3 bone = vec3(0.62, 0.61, 0.57);
         vec3 volt = vec3(1.0, 0.31, 0.0);
         vec3 col = mix(bone, volt, vCharge);
-        float alpha = disc * mix(0.22, 1.0, vCharge) * vFade;
+        float alpha = disc * mix(0.3, 1.0, vCharge) * vFade;
         gl_FragColor = vec4(col, alpha);
       }
     `,

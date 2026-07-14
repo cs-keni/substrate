@@ -81,8 +81,13 @@ postprocessing over the WebGL scene.
 - [x] Layer card symmetric drift, HUD callout rise, stat settle flash
 - [x] Seam-by-seam screenshot verification, dim probe, cold-jump repro
 
+## Phase 9 — Final Polish
+- [x] Camera timeline rhythm pass (sine corridor rides, long exit pull-up)
+- [x] Code-split three.js: 149 kB initial JS, stage chunk behind preloader
+- [x] Anchor router: journey waypoints for layer links, smooth scroll everywhere
+- [x] Hero field legibility, footer letter hover, OG meta
+
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
-- [ ] Code-split three.js behind dynamic import for faster first paint
 - [ ] Simplified world geometry on small viewports
 - [ ] Deploy target (static host) + share link

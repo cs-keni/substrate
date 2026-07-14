@@ -1,0 +1,24 @@
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  font-weight: 450;
+}
+
+/* wide industrial display — Archivo variable width axis */
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+  text-transform: none;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+}

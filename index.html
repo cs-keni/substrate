@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Substrate develops, owns, and operates the energy and compute infrastructure beneath the technologies rewriting the world." />
+    <meta name="theme-color" content="#0E0F0C" />
+    <title>Substrate — Raw Power, Refined Into Intelligence</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E0F0C'/%3E%3Cpath d='M16 5 27 11.5 16 18 5 11.5Z' fill='%23FF4E00'/%3E%3Cpath d='M16 12 27 18.5 16 25 5 18.5Z' fill='%23F4F3EF'/%3E%3C/svg%3E" />
+  </head>
+  <body data-theme="dark">
+    <!-- ============ PRELOADER ============ -->
+    <div class="preloader" id="preloader" aria-hidden="true">
+      <div class="preloader-mark">
+        <svg class="mark" viewBox="0 0 64 64" width="72" height="72" fill="none" aria-hidden="true">
+          <path class="mark-layer mark-layer--top" d="M32 8 56 22 32 36 8 22Z" />
+          <path class="mark-layer mark-layer--mid" d="M32 22 56 36 32 50 8 36Z" />
+          <path class="mark-layer mark-layer--bot" d="M32 36 56 50 32 64 8 50Z" />
+        </svg>
+      </div>
+      <div class="preloader-meta">
+        <span class="preloader-label">SUBSTRATE&nbsp;/&nbsp;BOOT SEQUENCE</span>
+        <span class="preloader-count" id="preloader-count">000</span>
+      </div>
+      <div class="preloader-lines" id="preloader-lines">
+        <span>&gt; init power bus .............. OK</span>
+        <span>&gt; sync transmission grid ...... OK</span>
+        <span>&gt; spool compute layer ......... OK</span>
+      </div>
+    </div>
+
+    <!-- ============ FIXED CHROME ============ -->
+    <header class="site-nav" id="site-nav">
+      <a class="nav-pill nav-pill--brand" href="#top" aria-label="Substrate home">
+        <svg class="nav-mark" viewBox="0 0 64 64" width="18" height="18" fill="none" aria-hidden="true">
+          <path d="M32 8 56 22 32 36 8 22Z" />
+          <path d="M32 22 56 36 32 50 8 36Z" />
+          <path d="M32 36 56 50 32 64 8 50Z" />
+        </svg>
+        <span class="nav-wordmark">Substrate</span>
+      </a>
+      <button class="nav-pill nav-pill--toggle" id="menu-toggle" aria-expanded="false" aria-controls="menu-overlay">
+        <span class="visually-hidden">Menu</span>
+        <span class="toggle-bars" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </header>
+
+    <nav class="menu-overlay" id="menu-overlay" aria-hidden="true">
+      <div class="menu-inner">
+        <ol class="menu-list">
+          <li><a href="#layer-generation" data-menu-link><em>01</em><span>Generation</span></a></li>
+          <li><a href="#layer-transmission" data-menu-link><em>02</em><span>Transmission</span></a></li>
+          <li><a href="#layer-compute" data-menu-link><em>03</em><span>Compute</span></a></li>
+          <li><a href="#footprint" data-menu-link><em>04</em><span>Footprint</span></a></li>
+          <li><a href="#next" data-menu-link><em>05</em><span>What's Next</span></a></li>
+        </ol>
+        <div class="menu-meta">
+          <p class="mono">SUBSTRATE INFRASTRUCTURE CORP.<br />ENERGY IN&nbsp;&rarr;&nbsp;INTELLIGENCE OUT</p>
+          <p class="mono menu-coords">53.5461° N, 113.4938° W<br />GRID NODE / SBR-HQ-01</p>
+        </div>
+      </div>
+    </nav>
+
+    <div class="cursor" id="cursor" aria-hidden="true"></div>
+    <div class="gl-stage" id="gl-stage" aria-hidden="true"><canvas id="gl-canvas"></canvas></div>
+    <div class="hud-layer" id="hud-layer" aria-hidden="true"></div>
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <!-- ============ CONTENT ============ -->
+    <main id="top">
+      <!-- HERO — dark energy field -->
+      <section class="hero section--gl" id="hero" data-scene="field">
+        <div class="hero-frame">
+          <p class="hero-eyebrow mono" data-hero-fade>SUBSTRATE — ENERGY &amp; COMPUTE INFRASTRUCTURE</p>
+          <h1 class="hero-title">
+            <span class="hero-line"><span class="hero-line-inner">Raw power,</span></span>
+            <span class="hero-line"><span class="hero-line-inner">refined into</span></span>
+            <span class="hero-line"><span class="hero-line-inner hero-line-inner--accent">intelligence.</span></span>
+          </h1>
+          <div class="hero-foot">
+            <p class="hero-blurb" data-hero-fade>
+              We develop, own, and operate the generation, transmission, and
+              compute assets beneath the technologies rewriting the world.
+            </p>
+            <div class="hero-cue mono" data-hero-fade>
+              <span>SCROLL TO DESCEND</span>
+              <span class="hero-cue-arrow" aria-hidden="true">&darr;</span>
+            </div>
+          </div>
+          <div class="hero-ticker mono" data-hero-fade>
+            <span data-ticker="load">BUS LOAD&nbsp;1 402 MW</span>
+            <span data-ticker="freq">GRID&nbsp;60.002 Hz</span>
+            <span data-ticker="hash">COMPUTE&nbsp;96.4 EH/s</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- MANIFESTO — dark, opaque -->
+      <section class="manifesto section--opaque" id="manifesto">
+        <div class="manifesto-frame">
+          <p class="section-tag mono"><i class="tag-dot"></i>THE THESIS</p>
+          <p class="manifesto-text" data-split>
+            The defining companies of this century will be built on top of
+            energy. We treat electrons and compute as one continuous supply
+            chain&nbsp;— siting power where it is abundant, moving it where it
+            is scarce, and converting it into the world's most valuable
+            output: intelligence.
+          </p>
+          <a class="text-link mono" href="#layer-generation">SEE THE STACK <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </section>
+
+      <!-- JOURNEY — pinned canvas, isometric world flythrough -->
+      <section class="journey section--gl" id="journey" data-scene="world">
+        <div class="journey-viewport" id="journey-viewport">
+          <article class="layer-card" id="layer-generation" data-layer="0">
+            <p class="layer-index mono">LAYER&nbsp;01&nbsp;/&nbsp;03</p>
+            <h2 class="layer-title">Generation</h2>
+            <p class="layer-desc">
+              1.4&nbsp;GW of wind, solar, and dispatchable thermal capacity,
+              sited where energy is abundant and demand is inevitable.
+            </p>
+          </article>
+          <article class="layer-card" id="layer-transmission" data-layer="1">
+            <p class="layer-index mono">LAYER&nbsp;02&nbsp;/&nbsp;03</p>
+            <h2 class="layer-title">Transmission</h2>
+            <p class="layer-desc">
+              Private high-voltage corridors move power from where it is
+              cheapest to where it thinks.
+            </p>
+          </article>
+          <article class="layer-card" id="layer-compute" data-layer="2">
+            <p class="layer-index mono">LAYER&nbsp;03&nbsp;/&nbsp;03</p>
+            <h2 class="layer-title">Compute</h2>
+            <p class="layer-desc">
+              Twelve campuses of liquid-cooled halls convert stranded
+              megawatts into training runs.
+            </p>
+          </article>
+          <div class="journey-progress mono" aria-hidden="true">
+            <span class="journey-progress-label" id="journey-progress-label">LAYER 01 — GENERATION</span>
+            <span class="journey-progress-track"><i id="journey-progress-fill"></i></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTPRINT — terrain + kinetic type -->
+      <section class="footprint section--gl" id="footprint" data-scene="terrain">
+        <div class="footprint-viewport" id="footprint-viewport">
+          <h2 class="footprint-mega" id="footprint-mega" aria-label="Our footprint">
+            <span>OUR&nbsp;FOOTPRINT&nbsp;&mdash;&nbsp;OUR&nbsp;FOOTPRINT</span>
+          </h2>
+          <div class="footprint-caption">
+            <p class="section-tag mono"><i class="tag-dot"></i>SITES ACROSS THE INTERIOR</p>
+            <p class="footprint-note">
+              Fourteen sites across three grid interconnections. Every marker
+              is a place where cheap electrons meet fiber.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATS — dark band -->
+      <section class="stats section--opaque" id="stats">
+        <div class="stats-frame">
+          <p class="section-tag mono"><i class="tag-dot"></i>THE PLATFORM, MEASURED</p>
+          <dl class="stats-grid">
+            <div class="stat" data-count="1.4" data-decimals="1">
+              <dt class="mono">ENERGY UNDER MANAGEMENT</dt>
+              <dd><span class="stat-num">0.0</span><span class="stat-unit">GW</span></dd>
+            </div>
+            <div class="stat" data-count="96.4" data-decimals="1">
+              <dt class="mono">SELF-MINING COMPUTE</dt>
+              <dd><span class="stat-num">0.0</span><span class="stat-unit">EH/s</span></dd>
+            </div>
+            <div class="stat" data-count="12" data-decimals="0">
+              <dt class="mono">CAMPUSES IN OPERATION</dt>
+              <dd><span class="stat-num">0</span><span class="stat-unit">SITES</span></dd>
+            </div>
+            <div class="stat" data-count="99.98" data-decimals="2">
+              <dt class="mono">FLEET AVAILABILITY</dt>
+              <dd><span class="stat-num">0.00</span><span class="stat-unit">%</span></dd>
+            </div>
+          </dl>
+          <p class="stats-footnote mono">FIGURES AS OF Q2 — FICTIONAL DEMONSTRATION DATA</p>
+        </div>
+      </section>
+
+      <!-- INDUSTRIES — what the platform powers next -->
+      <section class="industries section--opaque" id="next">
+        <div class="industries-frame">
+          <header class="industries-head">
+            <p class="section-tag mono"><i class="tag-dot"></i>POWERING WHAT'S NEXT</p>
+            <p class="industries-lede">
+              The platform is built to outlive any single workload. Whatever
+              the century decides to compute, smelt, or synthesize&nbsp;— it
+              will need the layer beneath.
+            </p>
+          </header>
+          <ul class="industries-list" id="industries-list">
+            <li>AI Training</li>
+            <li>Inference at Scale</li>
+            <li>Hydrogen Electrolysis</li>
+            <li>Direct Air Capture</li>
+            <li>Synthetic Fuels</li>
+            <li>Semiconductor Fabrication</li>
+            <li>Grid Balancing</li>
+            <li>Desalination</li>
+            <li>Vertical Farming</li>
+            <li>District Heating</li>
+            <li>Quantum Research</li>
+            <li>Metal Refining</li>
+            <li>Space Launch Logistics</li>
+            <li>Cryogenic Storage</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer section--opaque" id="footer">
+        <div class="footer-frame">
+          <div class="footer-cta">
+            <h2 class="footer-title">Build on the<br />layer beneath.</h2>
+            <form class="footer-form" id="footer-form" autocomplete="off">
+              <label class="mono" for="footer-email">YOUR EMAIL</label>
+              <div class="footer-input-row">
+                <input id="footer-email" type="email" placeholder="name@company.com" required />
+                <button type="submit" class="footer-submit mono">SUBSCRIBE&nbsp;&rarr;</button>
+              </div>
+            </form>
+          </div>
+          <div class="footer-cols mono">
+            <div>
+              <h3>COMPANY</h3>
+              <a href="#manifesto">Thesis</a>
+              <a href="#journey">The Stack</a>
+              <a href="#footprint">Footprint</a>
+            </div>
+            <div>
+              <h3>PLATFORM</h3>
+              <a href="#layer-generation">Generation</a>
+              <a href="#layer-transmission">Transmission</a>
+              <a href="#layer-compute">Compute</a>
+            </div>
+            <div>
+              <h3>SIGNAL</h3>
+              <a href="#next">What's Next</a>
+              <a href="#stats">Numbers</a>
+              <a href="#top">Top</a>
+            </div>
+          </div>
+          <div class="footer-mega" aria-hidden="true">SUBSTRATE</div>
+          <p class="footer-legal mono">
+            © SUBSTRATE INFRASTRUCTURE CORP. — A FICTIONAL COMPANY BUILT AS A
+            WEBGL / SCROLL-CRAFT DEMONSTRATION. NO REAL MEGAWATTS WERE HARMED.
+          </p>
+        </div>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

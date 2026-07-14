@@ -1,0 +1,67 @@
+:root {
+  /* color */
+  --paper: #f4f3ef;
+  --paper-dim: #e9e7e0;
+  --ink: #0e0f0c;
+  --ink-soft: #1a1b17;
+  --ink-40: rgba(14, 15, 12, 0.4);
+  --ink-15: rgba(14, 15, 12, 0.15);
+  --bone: #cfcdc4;
+  --volt: #ff4e00;
+  --volt-dim: #c73d00;
+  --paper-8: rgba(244, 243, 239, 0.08);
+  --paper-40: rgba(244, 243, 239, 0.4);
+  --paper-15: rgba(244, 243, 239, 0.15);
+
+  /* semantic (dark default; flipped by [data-theme]) */
+  --bg: var(--ink);
+  --fg: var(--paper);
+  --fg-dim: var(--paper-40);
+  --rule: var(--paper-15);
+
+  /* type */
+  --font-display: 'Archivo Variable', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* fluid scale */
+  --step--1: clamp(0.72rem, 0.68rem + 0.2vw, 0.84rem);
+  --step-0: clamp(0.95rem, 0.88rem + 0.35vw, 1.15rem);
+  --step-1: clamp(1.25rem, 1.1rem + 0.75vw, 1.7rem);
+  --step-2: clamp(1.7rem, 1.35rem + 1.75vw, 2.7rem);
+  --step-3: clamp(2.4rem, 1.8rem + 3vw, 4.2rem);
+  --step-4: clamp(3.2rem, 2.1rem + 5.5vw, 6.5rem);
+  --step-mega: clamp(4.5rem, 1rem + 17.5vw, 15rem);
+
+  /* space */
+  --gutter: clamp(1.25rem, 3.5vw, 3.5rem);
+  --space-s: clamp(0.75rem, 1.5vw, 1.25rem);
+  --space-m: clamp(1.5rem, 3vw, 3rem);
+  --space-l: clamp(3rem, 6vw, 6rem);
+  --space-xl: clamp(5rem, 10vw, 11rem);
+
+  /* motion */
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-inout: cubic-bezier(0.83, 0, 0.17, 1);
+  --dur-fast: 0.35s;
+  --dur-med: 0.7s;
+  --dur-slow: 1.2s;
+
+  /* chrome */
+  --nav-h: 3rem;
+  --radius-pill: 0.35rem;
+  --z-gl: 1;
+  --z-content: 5;
+  --z-hud: 8;
+  --z-nav: 40;
+  --z-menu: 30;
+  --z-grain: 60;
+  --z-cursor: 70;
+  --z-preloader: 90;
+}
+
+[data-theme='light'] {
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --fg-dim: var(--ink-40);
+  --rule: var(--ink-15);
+}

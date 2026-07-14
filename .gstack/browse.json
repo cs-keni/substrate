@@ -1,0 +1,9 @@
+{
+  "pid": 2116,
+  "port": 59549,
+  "token": "48195ea4-a420-4aa6-a46e-d0f794096f1f",
+  "startedAt": "2026-07-14T18:46:29.616Z",
+  "serverPath": "/home/keni/.claude/skills/gstack/browse/src/server.ts",
+  "mode": "launched",
+  "configHash": "303a7eeccc03078b"
+}

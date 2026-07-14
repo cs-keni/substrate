@@ -57,3 +57,8 @@
 - Verified: seam screenshots at 950/1250/1550/1800 (emerge), 19950–20800
   (sink), 13700–14700 (terrain handoff), dim probe at 10 positions, cold
   jump into late footprint. No console errors.
+- Environment note: `npm run build` intermittently dies with a V8
+  TurboFan trap (node 20.19.5 / WSL2, likely memory pressure alongside
+  headless Chromium + the polling watcher). tsc and vite each pass alone;
+  retry succeeds. Not a code issue — if it recurs, retry before debugging.
+- Commit: c2cbf39 (seam pass)

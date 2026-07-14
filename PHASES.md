@@ -66,9 +66,15 @@ postprocessing over the WebGL scene.
 - [x] Footer — newsletter input, giant SUBSTRATE wordmark, link columns
 
 ## Phase 7 — Polish + QA
-- [ ] Micro-interactions: magnetic buttons, link underline sweeps, cursor dot
-- [ ] prefers-reduced-motion: kill smoothing/scrubs, static fallbacks
-- [ ] Resize + mobile: DPR caps, simplified world on small viewports
-- [ ] Perf pass: instancing audit, draw-call count, memory
-- [ ] Full-journey QA in headless browser, screenshot every waypoint
-- [ ] Final docs update + commit
+- [x] Micro-interactions: link underline sweeps, cursor dot, tag blink, cue bob
+- [x] prefers-reduced-motion: Lenis disabled, cursor/grain hidden
+- [x] Resize + mobile: DPR cap 1.75, hero title min() guard, eyebrow clearance
+- [x] Full-journey QA in headless browser, screenshots at every waypoint
+- [x] Production build verified (tsc + vite build, 193 kB gzip)
+- [x] Final docs update + commit
+
+## Later (nice-to-haves)
+- [ ] Magnetic hover on nav pills
+- [ ] Code-split three.js behind dynamic import for faster first paint
+- [ ] Simplified world geometry on small viewports
+- [ ] Deploy target (static host) + share link

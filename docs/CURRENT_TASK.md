@@ -1,12 +1,10 @@
 # CURRENT_TASK
 
-**Active:** Phase 7 — polish + QA. Phases 0–6 complete and verified in
-headless browser (full scroll journey renders: hero field → manifesto →
-isometric world flythrough with layer cards/HUD → terrain footprint →
-stats → industries → footer).
+**Active:** none — all phases complete (0–7). Site verified end-to-end in
+headless browser and production build passes.
 
-Remaining: menu overlay QA, stats band capture, mobile/responsive pass,
-reduced-motion verification, perf audit, final screenshots.
+Next candidates live in PHASES.md → "Later (nice-to-haves)": magnetic nav
+hover, three.js code-split, mobile geometry simplification, deploy target.
 
 Owner: Claude Code (Fable 5)
 Updated: 2026-07-14

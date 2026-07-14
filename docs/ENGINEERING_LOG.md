@@ -24,4 +24,9 @@
   Symptom was "edits don't apply after reload".
 - Bugfix: footer SUBSTRATE wordmark wrapped (letter E on own line) →
   white-space: nowrap + viewport-fitted clamp size.
-- Commit: (hash added after commit)
+- Commit: 65b2d66 (phases 0–6 milestone)
+- Phase 7 QA in headless browser: preloader, menu overlay, stats counters,
+  mobile 390×844 all verified via screenshots. Fixes: hero title clipped on
+  narrow screens (min() font-size guard), hero eyebrow ran under nav pill
+  (max-width at ≤760px), footer wordmark wrap (nowrap + clamp). Production
+  build passes: 680 kB JS / 193 kB gzip, CSS 21 kB.

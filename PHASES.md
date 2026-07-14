@@ -73,6 +73,14 @@ postprocessing over the WebGL scene.
 - [x] Production build verified (tsc + vite build, 193 kB gzip)
 - [x] Final docs update + commit
 
+## Phase 8 — Seam Pass (user feedback: transition flash)
+- [x] Remove global theme flip — static per-section palettes
+- [x] Dim veil: emerge-from-black into the world, sink-to-black before stats
+- [x] Position-derived scene switching (jump/deep-link safe)
+- [x] Terrain handoff at footprint mid-window + journey rail fade
+- [x] Layer card symmetric drift, HUD callout rise, stat settle flash
+- [x] Seam-by-seam screenshot verification, dim probe, cold-jump repro
+
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
 - [ ] Code-split three.js behind dynamic import for faster first paint

@@ -44,13 +44,18 @@ export function initJourney(): void {
     }
     const local = (progress - a) / (b - a);
     const fade = Math.min(1, Math.min(local, 1 - local) * 5);
-    const rise = (1 - Math.min(1, local * 5)) * 28;
+    // symmetric drift: rises in from below, keeps floating up on exit
+    const enter = Math.min(1, local * 5);
+    const exit = Math.max(0, 1 - (1 - local) * 5);
+    const y = (1 - enter) * 30 - exit * 22;
     gsap.set(card.el, {
       opacity: fade,
       visibility: 'visible',
-      y: rise,
+      y,
     });
   };
+
+  const rail = document.querySelector<HTMLElement>('.journey-progress')!;
 
   ScrollTrigger.create({
     trigger: '#journey',
@@ -63,6 +68,10 @@ export function initJourney(): void {
       const current =
         p < 0.3 ? cards[0] : p < 0.62 ? cards[1] : cards[2];
       if (label.textContent !== current.label) label.textContent = current.label;
+      // rail eases in with the emerge-from-black and bows out before the
+      // terrain handoff so it never lingers over the footprint
+      const railFade = Math.min(1, Math.min(p * 18, (0.955 - p) * 30));
+      rail.style.opacity = String(Math.max(0, Math.min(1, railFade)).toFixed(3));
     },
   });
 }

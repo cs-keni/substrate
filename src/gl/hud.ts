@@ -65,7 +65,10 @@ export class JourneyHud {
       const local = (progress - start) / span;
       const fade = Math.min(1, Math.min(local, 1 - local) * 6);
       el.style.opacity = fade.toFixed(3);
-      el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px)`;
+      // small rise as the callout fades in — reads as "pinned on" rather
+      // than popped
+      const rise = (1 - fade) * 10;
+      el.style.transform = `translate(${p.x.toFixed(1)}px, ${(p.y + rise).toFixed(1)}px)`;
       if (a.live && fade > 0) {
         el.querySelector('[data-hud-value]')!.textContent = a.live();
       }

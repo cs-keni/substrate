@@ -119,6 +119,17 @@
 }
 
 /* ============ JOURNEY ============ */
+/* GL sections sit on the paper-white canvas — their overlay text is ink.
+   Scoped vars (not a global theme flip) so no scroll position can ever
+   repaint neighbouring sections. */
+.journey,
+.footprint {
+  --fg: var(--ink);
+  --fg-dim: var(--ink-40);
+  --rule: var(--ink-15);
+  color: var(--ink);
+}
+
 .journey {
   /* tall scroll runway; camera scrubs across it */
   height: 1400svh;

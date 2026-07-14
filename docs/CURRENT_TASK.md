@@ -1,10 +1,10 @@
 # CURRENT_TASK
 
-**Active:** none — all phases complete (0–7). Site verified end-to-end in
-headless browser and production build passes.
+**Active:** none — phases 0–8 complete. Seam pass (dim veil, static
+palettes, position-derived scene switching, motion polish) verified in
+headless browser.
 
-Next candidates live in PHASES.md → "Later (nice-to-haves)": magnetic nav
-hover, three.js code-split, mobile geometry simplification, deploy target.
+Next candidates in PHASES.md → "Later (nice-to-haves)".
 
 Owner: Claude Code (Fable 5)
 Updated: 2026-07-14

@@ -16,6 +16,15 @@ export function initStats(): void {
       onUpdate: () => {
         num.textContent = state.value.toFixed(decimals);
       },
+      onComplete: () => {
+        // settle flash: a quick volt blink when the number lands
+        gsap.fromTo(
+          num,
+          { color: '#ff4e00' },
+          { color: '', duration: 0.7, ease: 'power2.out' },
+        );
+        gsap.fromTo(num, { scale: 1.03 }, { scale: 1, duration: 0.45, ease: 'power3.out' });
+      },
       scrollTrigger: { trigger: stat, start: 'top 82%', once: true },
     });
 

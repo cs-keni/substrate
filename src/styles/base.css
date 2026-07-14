@@ -95,6 +95,17 @@ svg {
   height: 100%;
 }
 
+/* scroll-scrubbed black veil between canvas and content — scene fades
+   in/out of darkness instead of hard-cutting at section boundaries */
+.gl-dim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dim);
+  background: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+}
+
 .hud-layer {
   position: fixed;
   inset: 0;

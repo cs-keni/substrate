@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { boneMat, outlined, whiteMat, VOLT } from '../palette';
+import { road, blob } from './groundworks';
 
 /**
  * LAYER 01 — GENERATION. Wind farm, solar field, cooling towers + thermal
  * block. Everything procedural primitives with ink edge outlines.
  */
 
-const rotors: THREE.Group[] = [];
+const rotors: Array<{ spinner: THREE.Group; speed: number }> = [];
 
 function turbine(scale = 1): THREE.Group {
   const g = new THREE.Group();
@@ -21,20 +22,27 @@ function turbine(scale = 1): THREE.Group {
   nacelle.position.set(0.15, 11.2, 0);
   g.add(nacelle);
 
+  // Blades live in the spinner's local XY plane (spaced around Z), so the
+  // spin axis IS the hub axis. The outer rotor group then yaws the whole
+  // disc to face out the front of the nacelle — spinning stays in-plane.
+  // (Spacing around X + a 90° yaw made rotation.x tumble the disc.)
   const rotor = new THREE.Group();
+  const spinner = new THREE.Group();
   const bladeGeo = new THREE.BoxGeometry(0.16, 4.6, 0.42);
   bladeGeo.translate(0, 2.5, 0);
   for (let i = 0; i < 3; i++) {
     const blade = new THREE.Mesh(bladeGeo, whiteMat());
-    blade.rotation.x = (i * Math.PI * 2) / 3;
-    rotor.add(blade);
+    blade.rotation.z = (i * Math.PI * 2) / 3;
+    spinner.add(blade);
   }
   const hub = new THREE.Mesh(new THREE.SphereGeometry(0.32, 10, 8), whiteMat());
-  rotor.add(hub);
+  spinner.add(hub);
+  spinner.rotation.z = Math.random() * Math.PI * 2;
+  rotor.add(spinner);
   rotor.position.set(0.95, 11.2, 0);
   rotor.rotation.y = Math.PI / 2;
   g.add(rotor);
-  rotors.push(rotor);
+  rotors.push({ spinner, speed: 0.75 + Math.random() * 0.45 });
 
   g.scale.setScalar(scale);
   return g;
@@ -132,25 +140,65 @@ export function buildGeneration(): THREE.Group {
   turbinePos.forEach(([x, z, s]) => {
     const t = turbine(s);
     t.position.set(x, 0, z);
-    t.rotation.y = -0.4;
+    // shared wind heading with a touch of per-machine yaw drift
+    t.rotation.y = -0.4 + (Math.random() - 0.5) * 0.12;
     zone.add(t);
+
+    // grounding: shadow, gravel crane pad, and a pad-mount transformer —
+    // a turbine is a construction site, not a pin on a map
+    zone.add(blob(x, z, 2.4));
+    const padMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(3.4, 0.06, 2.6),
+      new THREE.MeshLambertMaterial({ color: '#e3e1d8' }),
+    );
+    padMesh.position.set(x + 0.4, 0.03, z + 0.6);
+    zone.add(padMesh);
+    const pmt = outlined(new THREE.BoxGeometry(0.7, 0.6, 0.5), boneMat(), 0.3);
+    pmt.position.set(x + 1.6, 0.3, z + 1.2);
+    zone.add(pmt);
   });
+
+  // turbine spur tracks off the wind-farm road (built in world.ts); the
+  // spine passes through zone-local (-14,-7) → (-21,-17) → (-26,-26)
+  const v2 = (x: number, z: number) => new THREE.Vector2(x, z);
+  zone.add(road([v2(-14, -7), v2(-16, -10)], 0.9));
+  zone.add(road([v2(-21, -17), v2(-14, -18), v2(-8, -18)], 0.9));
+  zone.add(road([v2(-6, 6), v2(-6, -4), v2(-2, -9), v2(2, -13), v2(6, -22)], 0.9));
+  zone.add(road([v2(-14, -7), v2(-19, -4), v2(-24, -2)], 0.9));
 
   const ct1 = coolingTower();
   ct1.position.set(16, 0, 8);
   zone.add(ct1);
+  zone.add(blob(16, 8, 4.2));
   const ct2 = coolingTower();
   ct2.scale.setScalar(0.85);
   ct2.position.set(24, 0, 3);
   zone.add(ct2);
+  zone.add(blob(24, 3, 3.6));
 
   const thermal = thermalBlock();
   thermal.position.set(18, 0, 18);
   zone.add(thermal);
+  zone.add(blob(18.6, 18.3, 7, 4.6));
+
+  // apron pad tying the thermal cluster together
+  const apron = new THREE.Mesh(
+    new THREE.BoxGeometry(24, 0.12, 22),
+    new THREE.MeshLambertMaterial({ color: '#eceae2' }),
+  );
+  apron.position.set(20, 0.06, 11);
+  zone.add(apron);
 
   const solar = solarField(9, 7);
   solar.position.set(-30, 0, 10);
   zone.add(solar);
+
+  // inverter skids along the array's east edge
+  for (let i = 0; i < 3; i++) {
+    const skid = outlined(new THREE.BoxGeometry(1.3, 0.9, 1), boneMat(), 0.28);
+    skid.position.set(-9.6, 0.45, 12 + i * 6);
+    zone.add(skid);
+  }
 
   // collector yard — where the traces will begin
   const collectorGeo = new THREE.BoxGeometry(3, 1.6, 3);
@@ -158,6 +206,7 @@ export function buildGeneration(): THREE.Group {
   collector.position.set(34, 0.8, 22);
   zone.add(collector);
   zone.add(fence(34, 22, 6));
+  zone.add(blob(34, 22, 3));
 
   return zone;
 }
@@ -182,5 +231,5 @@ function fence(x: number, z: number, size: number): THREE.LineSegments {
 }
 
 export function tickGeneration(dt: number): void {
-  for (const r of rotors) r.rotation.x += dt * 0.9;
+  for (const r of rotors) r.spinner.rotation.z -= dt * r.speed;
 }

@@ -96,6 +96,60 @@ function transformer(): THREE.Group {
   return g;
 }
 
+/** Light H-frame pylon — carries the corridor visually above the traces. */
+function pylon(): THREE.Group {
+  const g = new THREE.Group();
+  const legGeo = new THREE.CylinderGeometry(0.07, 0.1, 4.4, 6);
+  for (const s of [-1, 1]) {
+    const leg = new THREE.Mesh(legGeo, whiteMat());
+    leg.position.set(s * 1.15, 2.2, 0);
+    g.add(leg);
+  }
+  const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 3.4, 6);
+  armGeo.rotateZ(Math.PI / 2);
+  const arm = new THREE.Mesh(armGeo, whiteMat());
+  arm.position.y = 4.1;
+  g.add(arm);
+  const insGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.55, 6);
+  for (let i = -1; i <= 1; i++) {
+    const ins = new THREE.Mesh(insGeo, boneMat());
+    ins.position.set(i * 1.1, 3.75, 0);
+    g.add(ins);
+  }
+  return g;
+}
+
+/** Clone pylons along a polyline at ~fixed arc-length spacing, oriented
+ *  perpendicular to the local run, skipping keep-out radii (yards). */
+function pylonsAlong(
+  route: THREE.Vector2[],
+  spacing: number,
+  keepOut: Array<[number, number, number]>,
+): THREE.Group {
+  const g = new THREE.Group();
+  let carry = spacing * 0.5;
+  for (let i = 0; i < route.length - 1; i++) {
+    const a = route[i];
+    const b = route[i + 1];
+    const segLen = a.distanceTo(b);
+    const dir = new THREE.Vector2().subVectors(b, a).normalize();
+    let d = carry;
+    while (d < segLen) {
+      const x = a.x + dir.x * d;
+      const z = a.y + dir.y * d;
+      d += spacing;
+      if (keepOut.some(([kx, kz, kr]) => (x - kx) ** 2 + (z - kz) ** 2 < kr * kr)) continue;
+      const p = pylon();
+      p.position.set(x, 0, z);
+      // crossarm perpendicular to the run: local +X → world (dir.y, -dir.x)
+      p.rotation.y = Math.atan2(dir.x, dir.y);
+      g.add(p);
+    }
+    carry = d - segLen;
+  }
+  return g;
+}
+
 function gantry(width: number): THREE.Group {
   const g = new THREE.Group();
   const legGeo = new THREE.CylinderGeometry(0.09, 0.12, 5.6, 6);
@@ -165,6 +219,19 @@ export function buildTransmission(): TransmissionBuild {
   ];
   group.add(traceBundle(spurA, 4, 0.4));
   group.add(traceBundle(spurB, 4, 0.4));
+
+  // H-frame pylons pace the corridors — the traces stop reading as abstract
+  // lines and start reading as a transmission line. Keep-outs clear the
+  // collector yard, switchyard, and campus approach.
+  const yardKeepOut: Array<[number, number, number]> = [
+    [-106, 42, 10],
+    [0, 0, 16],
+    [92, -26, 12],
+  ];
+  group.add(pylonsAlong(corridor, 15, yardKeepOut));
+  group.add(pylonsAlong(corridorEast, 15, yardKeepOut));
+  group.add(pylonsAlong(spurA, 17, yardKeepOut));
+  group.add(pylonsAlong(spurB, 17, yardKeepOut));
 
   // energy pulses
   group.add(addPulse(corridor, 0.055));

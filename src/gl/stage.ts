@@ -5,7 +5,7 @@ import { createField, type FieldScene } from './world/field';
 import { createWorld, buildCameraTimeline, type WorldScene } from './world/world';
 import { createTerrain, type TerrainScene } from './world/terrain';
 import { createPost, type Post } from './post/composer';
-import { JourneyHud, SiteLabels } from './hud';
+import { JourneyHud, SiteLabels, RegionLabels } from './hud';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,6 +46,7 @@ export function initStage(): void {
 
   const journeyHud = new JourneyHud(hudHost, world.hudAnchors);
   const siteLabels = new SiteLabels(hudHost, terrain.sites);
+  const regionLabels = new RegionLabels(hudHost, terrain.regions);
 
   let active: SceneKey = null;
   let w = window.innerWidth;
@@ -77,10 +78,16 @@ export function initStage(): void {
     dimSegments = [
       // manifesto slides over the hero: field fades to black
       { from: top('#manifesto') - vh, to: bottom('#manifesto') - vh, a: 0, b: 1 },
-      // world emerges from black as the journey pins
-      { from: top('#journey') - vh, to: top('#journey') - vh * 0.15, a: 1, b: 0 },
-      // terrain sinks to black before the stats band covers it
-      { from: bottom('#footprint') - vh * 0.85, to: bottom('#footprint') - vh * 0.35, a: 0, b: 1 },
+      // world emerges from black only AFTER the manifesto's bottom edge has
+      // cleared the viewport top — while any part of the black thesis slab
+      // is on screen the veil stays ~1, so the slab's edge is invisible
+      // (black over black) and the section reads as dissolving, not
+      // scrolling up as a box
+      { from: top('#journey') - vh * 0.05, to: top('#journey') + vh * 0.75, a: 1, b: 0 },
+      // terrain sinks fully to black BEFORE the stats band's edge enters
+      // (stats top = footprint bottom; edge enters at bottom - 1vh), same
+      // black-over-black trick in reverse
+      { from: bottom('#footprint') - vh * 1.7, to: bottom('#footprint') - vh * 1.05, a: 0, b: 1 },
     ];
     sceneBounds = {
       world: top('#journey') - vh, // journey enters viewport
@@ -109,11 +116,17 @@ export function initStage(): void {
     return value;
   };
 
+  // the footprint caption (with its volt legend dots) lives in the content
+  // layer ABOVE the veil — sink it with the terrain or its orange dots
+  // would keep glowing over the black gap before the stats band
+  const footprintCaption = document.querySelector<HTMLElement>('.footprint-caption');
+
   const applyDim = () => {
     const v = Math.round(dimAt(window.scrollY) * 1000) / 1000;
     if (v !== lastDim) {
       lastDim = v;
       dimEl.style.opacity = String(v);
+      if (footprintCaption) footprintCaption.style.opacity = String(1 - v);
     }
   };
 
@@ -137,7 +150,10 @@ export function initStage(): void {
     active = key;
     stageEl.classList.toggle('is-live', key !== null);
     if (key !== 'world') journeyHud.hide();
-    if (key !== 'terrain') siteLabels.hide();
+    if (key !== 'terrain') {
+      siteLabels.hide();
+      regionLabels.hide();
+    }
     if (key === 'field') post.setScene(field.scene, field.camera);
     if (key === 'world') post.setScene(world.scene, world.camera);
     if (key === 'terrain') post.setScene(terrain.scene, terrain.camera);
@@ -190,7 +206,11 @@ export function initStage(): void {
       journeyHud.update(world.camera, journeyProgress, w, h);
     } else if (active === 'terrain') {
       terrain.tick(dt, elapsed);
-      siteLabels.update(terrain.camera, true, w, h);
+      // HTML labels sit ABOVE the dim veil (z-hud > z-dim) — sink them with
+      // the scene as it fades to black or they'd float over darkness
+      const gate = Math.max(0, 1 - lastDim * 2.5);
+      siteLabels.update(terrain.camera, gate, w, h);
+      regionLabels.update(terrain.camera, gate, w, h);
     }
     post.composer.render();
   });

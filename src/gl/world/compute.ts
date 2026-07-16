@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { VOLT, boneMat, outlined, whiteMat } from '../palette';
+import { road } from './groundworks';
 
 /**
  * LAYER 03 — COMPUTE. Data center campus: rows of long halls with rooftop
@@ -110,6 +111,35 @@ export function buildCompute(): THREE.Group {
   const mast = new THREE.Mesh(mastGeo, whiteMat());
   mast.position.set(-26, 3.7, 16);
   campus.add(mast);
+
+  // cooling water tanks on the southwest corner
+  for (let i = 0; i < 2; i++) {
+    const tank = new THREE.Group();
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.2, 2.2, 3.2, 18),
+      whiteMat(),
+    );
+    body.position.y = 1.6;
+    tank.add(body);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.08, 6, 18), boneMat());
+    rim.rotation.x = Math.PI / 2;
+    rim.position.y = 3.2;
+    tank.add(rim);
+    tank.position.set(-24 + i * 5.4, 0.18, -14);
+    campus.add(tank);
+  }
+
+  // gatehouse where the entry road meets the pad
+  const gate = outlined(new THREE.BoxGeometry(1.8, 1.3, 1.4), whiteMat(), 0.3);
+  gate.position.set(-27, 0.83, 20);
+  campus.add(gate);
+
+  // internal circulation: spine down the west edge, cross-run along the
+  // south — halls sit on a street grid, not in a void
+  const v2 = (x: number, z: number) => new THREE.Vector2(x, z);
+  campus.add(road([v2(-24, 20), v2(-28.5, 12), v2(-28.5, -20)], 1.4, 0.19));
+  campus.add(road([v2(-28.5, -20), v2(26, -20)], 1.4, 0.19));
+  campus.add(road([v2(0, 20), v2(0, -20)], 1.4, 0.19));
   const beacon = new THREE.Mesh(
     new THREE.SphereGeometry(0.22, 10, 8),
     new THREE.MeshBasicMaterial({ color: VOLT }),

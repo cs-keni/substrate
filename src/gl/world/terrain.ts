@@ -1,9 +1,12 @@
 import * as THREE from 'three';
+import { NOISE_GLSL, fbm } from './noise';
 
 /**
  * FOOTPRINT — light point-cloud terrain. A displaced dot grid in paper
  * tones, with fictional site spikes whose labels are projected to HTML.
- * Camera glides forward across the range as the section scrubs.
+ * Spike height encodes site capacity; dashed loops group the sites into
+ * their three grid interconnections. Camera glides forward across the
+ * range as the section scrubs.
  */
 
 export interface SiteMarker {
@@ -14,73 +17,21 @@ export interface SiteMarker {
   status?: string;
 }
 
+export interface RegionMarker {
+  id: string;
+  position: THREE.Vector3;
+  name: string;
+}
+
 export interface TerrainScene {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   progress: { value: number };
   sites: SiteMarker[];
+  regions: RegionMarker[];
   resize: (w: number, h: number) => void;
   tick: (dt: number, elapsed: number) => void;
 }
-
-/* CPU value-noise mirror of the shader fbm — close enough for spike bases
-   since spikes pierce the surface with margin. */
-function hash21(x: number, y: number): number {
-  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
-  return s - Math.floor(s);
-}
-function vnoise(x: number, y: number): number {
-  const ix = Math.floor(x);
-  const iy = Math.floor(y);
-  const fx = x - ix;
-  const fy = y - iy;
-  const ux = fx * fx * (3 - 2 * fx);
-  const uy = fy * fy * (3 - 2 * fy);
-  const a = hash21(ix, iy);
-  const b = hash21(ix + 1, iy);
-  const c = hash21(ix, iy + 1);
-  const d = hash21(ix + 1, iy + 1);
-  return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
-}
-function fbm(x: number, y: number): number {
-  let v = 0;
-  let amp = 0.5;
-  let fx = x;
-  let fy = y;
-  for (let i = 0; i < 4; i++) {
-    v += amp * vnoise(fx, fy);
-    fx *= 2.03;
-    fy *= 2.03;
-    amp *= 0.5;
-  }
-  return v;
-}
-
-const NOISE_GLSL = /* glsl */ `
-  float hash21(vec2 p) {
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-  }
-  float vnoise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(hash21(i), hash21(i + vec2(1.0, 0.0)), u.x),
-      mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), u.x),
-      u.y
-    );
-  }
-  float fbm(vec2 p) {
-    float v = 0.0;
-    float a = 0.5;
-    for (int i = 0; i < 4; i++) {
-      v += a * vnoise(p);
-      p *= 2.03;
-      a *= 0.5;
-    }
-    return v;
-  }
-`;
 
 const TERRAIN_SCALE = 0.021;
 const TERRAIN_AMP = 16.0;
@@ -158,7 +109,8 @@ export function createTerrain(): TerrainScene {
   });
   scene.add(new THREE.Points(geo, mat));
 
-  // fictional sites — [x, z] on the terrain
+  // fictional sites — [x, z] on the terrain; twelve, matching the "12
+  // campuses" stat one band later
   const siteDefs: Array<[string, string, number, number, string?]> = [
     ['Iron Creek', '280 MW', -96, -38],
     ['Cinder Basin', '205 MW', -52, 6],
@@ -170,6 +122,8 @@ export function createTerrain(): TerrainScene {
     ['Kettle Rapids', '110 MW', 62, -66, 'UNDER DEVELOPMENT'],
     ['Two Pines', '96 MW', 152, -44],
     ['Saltern', '75 MW', -140, 16],
+    ['Braxton Ridge', '150 MW', -74, -62],
+    ['Copper Sound', '88 MW', 20, 46],
   ];
 
   const spikeMat = new THREE.LineBasicMaterial({
@@ -177,8 +131,10 @@ export function createTerrain(): TerrainScene {
     transparent: true,
     opacity: 0.65,
   });
+  const maxMw = Math.max(...siteDefs.map(([, mw]) => parseInt(mw, 10)));
   const sites: SiteMarker[] = siteDefs.map(([name, mw, x, z, status]) => {
-    const yTop = terrainHeight(x, z) + 9;
+    // spike height encodes capacity — the map gains a data axis
+    const yTop = terrainHeight(x, z) + 4 + (parseInt(mw, 10) / maxMw) * 13;
     const spikeGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(x, -8, z),
       new THREE.Vector3(x, yTop, z),
@@ -202,6 +158,40 @@ export function createTerrain(): TerrainScene {
     };
   });
 
+  // dashed boundary loops draped on the terrain: the three grid
+  // interconnections the caption promises — the map explains itself
+  const regionDefs: Array<[string, number, number, number, number]> = [
+    ['WESTERN INTERCONNECT', -95, -18, 62, 58],
+    ['CENTRAL INTERCONNECT', 12, -4, 48, 60],
+    ['EASTERN INTERCONNECT', 108, -22, 55, 54],
+  ];
+  const loopMat = new THREE.LineDashedMaterial({
+    color: '#0e0f0c',
+    transparent: true,
+    opacity: 0.3,
+    dashSize: 2.2,
+    gapSize: 1.8,
+  });
+  const regions: RegionMarker[] = regionDefs.map(([name, cx, cz, rx, rz]) => {
+    const pts: THREE.Vector3[] = [];
+    for (let i = 0; i <= 72; i++) {
+      const a = (i / 72) * Math.PI * 2;
+      const x = cx + Math.cos(a) * rx;
+      const z = cz + Math.sin(a) * rz;
+      pts.push(new THREE.Vector3(x, terrainHeight(x, z) + 1.2, z));
+    }
+    const loopGeo = new THREE.BufferGeometry().setFromPoints(pts);
+    const loop = new THREE.Line(loopGeo, loopMat);
+    loop.computeLineDistances();
+    scene.add(loop);
+
+    return {
+      id: name.toLowerCase().replace(/\s+/g, '-'),
+      position: new THREE.Vector3(cx, terrainHeight(cx, cz - rz) + 3, cz - rz),
+      name,
+    };
+  });
+
   const progress = { value: 0 };
 
   const applyCamera = () => {
@@ -221,6 +211,7 @@ export function createTerrain(): TerrainScene {
     camera,
     progress,
     sites,
+    regions,
     resize: (w, h) => {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();

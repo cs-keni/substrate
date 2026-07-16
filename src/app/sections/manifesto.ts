@@ -36,4 +36,20 @@ export function initManifesto(): void {
     ease: 'power3.out',
     scrollTrigger: { trigger: '.manifesto', start: 'top 70%', once: true },
   });
+
+  // Exit dissolve: the thesis text melts away while the section's black
+  // background is still indistinguishable from the dim veil behind it —
+  // paired with the stage's veil ramp, the section disappears instead of
+  // visibly scrolling up as a black box.
+  gsap.to('.manifesto-frame', {
+    opacity: 0,
+    yPercent: -8,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.manifesto',
+      start: 'bottom 82%',
+      end: 'bottom 45%',
+      scrub: true,
+    },
+  });
 }

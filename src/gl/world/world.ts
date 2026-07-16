@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { PAPER } from '../palette';
+import { PAPER, PAPER_DIM } from '../palette';
 import { buildGeneration, tickGeneration } from './generation';
 import { buildTransmission, tickTransmission } from './transmission';
 import { buildCompute, tickCompute } from './compute';
+import { NOISE_GLSL } from './noise';
+import { road, fenceRect, scrub } from './groundworks';
 
 /**
  * The isometric world scene: paper-white ground with a dot-matrix shader,
@@ -42,6 +44,7 @@ function dotGround(): THREE.Mesh {
   const mat = new THREE.ShaderMaterial({
     uniforms: {
       uPaper: { value: PAPER },
+      uPaperDim: { value: PAPER_DIM },
       uInk: { value: new THREE.Color('#5a584f') },
       uFocus: { value: new THREE.Vector2(0, 0) },
     },
@@ -56,10 +59,24 @@ function dotGround(): THREE.Mesh {
     fragmentShader: /* glsl */ `
       varying vec2 vWorld;
       uniform vec3 uPaper;
+      uniform vec3 uPaperDim;
       uniform vec3 uInk;
       uniform vec2 uFocus;
+      ${NOISE_GLSL}
 
       void main() {
+        // large-scale mottling: the plane reads as land, not blank paper
+        float land = fbm(vWorld * 0.014);
+        vec3 col = mix(uPaper, uPaperDim, smoothstep(0.3, 0.8, land) * 0.7);
+
+        // faint survey contours off the same noise field — the
+        // "engineering drawing" read at zero geometry cost
+        float lv = land * 9.0;
+        float band = min(fract(lv), 1.0 - fract(lv));
+        float aa = fwidth(lv) * 1.4;
+        float contour = 1.0 - smoothstep(aa, aa * 2.2, band);
+        col = mix(col, uInk, contour * 0.05);
+
         // dot matrix in world units
         vec2 cell = fract(vWorld / 2.2) - 0.5;
         float d = length(cell);
@@ -69,7 +86,7 @@ function dotGround(): THREE.Mesh {
         float focus = 1.0 - smoothstep(18.0, 90.0, distance(vWorld, uFocus));
         float strength = dot * mix(0.05, 0.32, focus);
 
-        vec3 col = mix(uPaper, uInk, strength);
+        col = mix(col, uInk, strength);
         gl_FragColor = vec4(col, 1.0);
       }
     `,
@@ -106,6 +123,49 @@ export function createWorld(): WorldScene {
   const compute = buildCompute();
   scene.add(compute);
 
+  /* Groundworks — the connective tissue that makes the three zones read as
+     one built-out site instead of objects dropped on a plane. */
+  const v2 = (x: number, z: number) => new THREE.Vector2(x, z);
+
+  // service road shadowing the transmission corridor (offset south)
+  const serviceRoad = [
+    v2(-104.5, 49), v2(-86.5, 49), v2(-72.5, 35), v2(-44.5, 35),
+    v2(-28.5, 19), v2(-28.5, 11), v2(-6.5, 11), v2(1.5, 7),
+    v2(19.5, 6), v2(35.5, -7), v2(59.5, -7), v2(71.5, -19), v2(93.5, -19),
+  ];
+  scene.add(road(serviceRoad, 1.7));
+
+  // spur through the wind farm — turbines sit ALONG a road, as built
+  scene.add(road(
+    [v2(-104.5, 49), v2(-114, 38), v2(-124, 24), v2(-132, 11), v2(-139, 1), v2(-144, -8)],
+    1.3,
+  ));
+
+  // solar farm access track down its east edge
+  scene.add(road(
+    [v2(-104.5, 49), v2(-115, 47.5), v2(-123, 43.5), v2(-126.5, 35), v2(-126.5, 25)],
+    1.2,
+  ));
+
+  // campus entry off the corridor road
+  scene.add(road([v2(93.5, -19), v2(87, -12), v2(80, -6)], 1.5));
+
+  // perimeter fences: solar block, switchyard, campus
+  scene.add(fenceRect(-138.7, 36.4, 25, 23));
+  scene.add(fenceRect(0, 0, 30, 22));
+  scene.add(fenceRect(104, -26, 68, 50));
+
+  // patchy scrub + rock clusters across the open land (kept off the roads,
+  // pads, and structure aprons)
+  const keepOut: Array<[number, number, number]> = [
+    [-138.7, 36.4, 15], [0, 0, 18], [104, -26, 40],
+    [-100, 26, 12], [-100, 36, 10],
+    ...serviceRoad.map((p): [number, number, number] => [p.x, p.y, 6]),
+    [-114, 38, 5], [-124, 24, 5], [-132, 11, 5], [-139, 1, 5],
+    [-126.5, 30, 5], [-123, 43.5, 5], [87, -12, 6],
+  ];
+  scene.add(scrub(-160, -50, 150, 68, 620, keepOut));
+
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -400, 800);
   const camState = { x: -132, z: 4, zoom: 0.55 };
 
@@ -140,7 +200,7 @@ export function createWorld(): WorldScene {
     {
       id: 'turbine',
       position: new THREE.Vector3(-126, 12, 8),
-      range: [0.05, 0.2],
+      range: [0.15, 0.24],
       title: '5.6 MW',
       value: 'TURBINE W-04',
       sub: 'CUT-IN 3.2 m/s',
@@ -149,7 +209,7 @@ export function createWorld(): WorldScene {
     {
       id: 'solar',
       position: new THREE.Vector3(-138, 3, 36),
-      range: [0.16, 0.3],
+      range: [0.21, 0.33],
       title: '68 MW DC',
       value: 'ARRAY S-11',
       sub: 'TRACKING +38°',

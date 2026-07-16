@@ -284,6 +284,37 @@
   line-height: 1.5;
 }
 
+.footprint-legend {
+  display: flex;
+  gap: 1.4em;
+  align-items: center;
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  color: var(--ink-40);
+}
+
+.footprint-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.legend-cap {
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--ink);
+  display: inline-block;
+}
+
+.legend-cap--dev {
+  background: var(--volt);
+}
+
+.legend-height {
+  color: var(--ink-40);
+}
+
 /* site spike labels (spawned by terrain scene) */
 .site-label {
   position: absolute;
@@ -309,6 +340,20 @@
 
 .site-label .site-status {
   color: var(--volt);
+}
+
+/* interconnection region tags (spawned by terrain scene) */
+.region-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  color: var(--ink-40);
+  opacity: 0;
+  will-change: transform, opacity;
+  white-space: nowrap;
 }
 
 /* ============ STATS ============ */

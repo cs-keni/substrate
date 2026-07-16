@@ -87,3 +87,48 @@
   setup, no product code touched).
 - Commit: this commit ("chore: add gstack skill routing rules to CLAUDE.md" —
   log entry rides along, so no stable hash to cite).
+- Kenny's first in-browser review: intro/cursor/stats/industries/footer all
+  approved. Five fixes requested → Phase 10 in PHASES.md:
+  1. Turbine rotors "flipped over" instead of spinning. Root cause in
+     src/gl/world/generation.ts: blades were spaced around X while the rotor
+     group carried rotation.y = π/2, so animating rotation.x tumbled the
+     disc through its own plane (Euler XYZ: Rx applies in the PARENT frame
+     after the yaw). Fix: blades respaced around Z inside a new inner
+     `spinner` group whose rotation.z IS the hub axis; outer rotor group
+     keeps the yaw. Per-turbine speed (0.75–1.2 rad/s) + random phase.
+  2. Thesis scrolled up as a black box over the emerging white world. Fix in
+     src/gl/stage.ts: the emerge segment now runs top(#journey)−0.05vh →
+     +0.75vh, so the veil is ≥0.94 black while any part of the manifesto
+     slab is on screen (black-over-black edge is invisible); manifesto.ts
+     scrub-fades .manifesto-frame on exit (bottom 82%→45%). Journey card 01
+     range 0.04→0.14, rail fade, and turbine/solar HUD windows shifted past
+     the emergence (~p 0.13).
+  3. Same seam in reverse before stats: terrain-sink segment moved to
+     bottom(#footprint)−1.7vh → −1.05vh (fully black BEFORE the stats edge
+     enters at −1.0vh); stats.ts fades tag+footnote up; .footprint-caption
+     opacity is driven inversely by the veil in applyDim (its volt legend
+     dots sit above the veil and were glowing over the black gap).
+  4. World read as "objects on a sandbox". New src/gl/world/groundworks.ts
+     (road ribbons w/ ink edges, fenceRect, noise-clustered scrub+rocks,
+     grounding blobs) + src/gl/world/noise.ts (shared GLSL+CPU value noise,
+     de-duped from terrain.ts). world.ts: ground shader gained fbm tone
+     mottling + faint survey contours (fwidth AA'd); service road shadowing
+     the corridor, wind-farm spur + per-turbine tracks, solar access road,
+     campus entry, 3 perimeter fences, 620-instance scrub scatter with
+     keep-outs. transmission.ts: H-frame pylons paced every ~15 units along
+     all corridors (keep-outs at yards). generation.ts: turbine gravel pads
+     + pad-mount transformers + blobs, thermal apron, solar inverter skids.
+     compute.ts: water tanks, gatehouse, on-pad street grid (road() gained a
+     y param for the raised pad).
+  5. Footprint answered "what am I looking at": spike height now ∝ MW
+     (4–17 units), 12 sites (copy said fourteen, scene had ten — now matches
+     the 12-campus stat), dashed interconnection boundary loops draped on
+     the terrain + RegionLabels (hud.ts), caption legend (OPERATING / IN
+     BUILD / HEIGHT=MW), note copy rewritten. Site+region labels multiply by
+     an inverse-veil gate and a top-band fade so they duck under the mega
+     title instead of colliding with it.
+- QA: tsc + vite build green (2.9s, stage chunk 544 kB). Headless screenshot
+  pass at 11 scroll positions verified all five fixes; two follow-ups found
+  and fixed in the same pass (label/mega-title collision, caption dots over
+  the black gap).
+- Commit: (hash in next entry — code + docs together)

@@ -87,6 +87,23 @@ postprocessing over the WebGL scene.
 - [x] Anchor router: journey waypoints for layer links, smooth scroll everywhere
 - [x] Hero field legibility, footer letter hover, OG meta
 
+## Phase 10 — Kenny's Browser Review Fixes (2026-07-16)
+- [x] Turbine rotors spin in the disc plane (were tumbling: blades respaced
+      around Z inside a spinner group; per-machine speed + phase variance)
+- [x] Thesis exit dissolve — veil stays black until the manifesto edge leaves
+      the viewport; content scrub-fades; card/HUD/rail timings shifted past
+      the emergence (~p 0.13)
+- [x] Footprint→stats dissolve — terrain sinks fully to black before the
+      stats edge enters; stats tag/footnote fade up; caption sinks with veil
+- [x] World densification: ground fbm mottling + survey contours, service
+      roads + turbine spurs, perimeter fences, pylons pacing the corridors,
+      scrub/rock clusters, grounding shadow blobs, turbine pads + pad-mount
+      transformers, solar inverter skids, campus tanks/gatehouse/street grid
+- [x] Footprint legibility: spike height ∝ MW, 12 sites (copy said fourteen,
+      scene had ten), dashed interconnection loops + region labels, caption
+      legend, labels duck under the mega title band
+- [x] tsc + build green; headless screenshot pass over all five fixes
+
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
 - [ ] Simplified world geometry on small viewports

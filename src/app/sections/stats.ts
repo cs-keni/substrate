@@ -2,6 +2,18 @@ import gsap from 'gsap';
 
 /** Tabular-numeral counters that wind up when the band scrolls in. */
 export function initStats(): void {
+  // The band enters over a fully black veil (the terrain has already sunk),
+  // so the section itself is invisible until its content fades up — the
+  // whole thing reads as emerging from darkness rather than sliding in.
+  gsap.from('.stats .section-tag, .stats-footnote', {
+    opacity: 0,
+    y: 18,
+    duration: 0.9,
+    stagger: 0.12,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: '.stats', start: 'top 72%', once: true },
+  });
+
   document.querySelectorAll<HTMLElement>('.stat').forEach((stat, i) => {
     const target = parseFloat(stat.dataset.count ?? '0');
     const decimals = parseInt(stat.dataset.decimals ?? '0', 10);

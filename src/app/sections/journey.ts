@@ -18,7 +18,9 @@ export function initJourney(): void {
   const cards: CardWindow[] = [
     {
       el: document.getElementById('layer-generation')!,
-      range: [0.04, 0.24],
+      // starts after the emerge-from-black completes (~p 0.13) so ink text
+      // never fades in over the still-black veil
+      range: [0.14, 0.3],
       label: 'LAYER 01 — GENERATION',
     },
     {
@@ -70,7 +72,7 @@ export function initJourney(): void {
       if (label.textContent !== current.label) label.textContent = current.label;
       // rail eases in with the emerge-from-black and bows out before the
       // terrain handoff so it never lingers over the footprint
-      const railFade = Math.min(1, Math.min(p * 18, (0.955 - p) * 30));
+      const railFade = Math.min(1, Math.min((p - 0.12) * 15, (0.955 - p) * 30));
       rail.style.opacity = String(Math.max(0, Math.min(1, railFade)).toFixed(3));
     },
   });

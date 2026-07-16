@@ -29,8 +29,10 @@ src/
   gl/
     stage.ts            renderer, scene, camera, raf via gsap.ticker
     path.ts             CatmullRom camera spline scrubbed by ScrollTrigger
-    hud.ts              3D anchor → 2D HTML callout projection
+    hud.ts              3D anchor → 2D HTML projection (JourneyHud, SiteLabels, RegionLabels)
     world/              generation.ts, transmission.ts, compute.ts, terrain.ts
+                        noise.ts (shared GLSL+CPU value noise — keep in sync!)
+                        groundworks.ts (roads, fences, scrub clusters, shadow blobs)
     post/               composer.ts, grade shader (grain/CA/vignette)
 ```
 
@@ -43,6 +45,17 @@ src/
 - All geometry procedural (Box/Cylinder primitives, merged + instanced).
   No GLTF, no textures, no external assets. Fictional data only.
 - Scroll heights: journey ≈ 6× viewport per layer; total page ≈ 35k px at 1440×900.
+- Dark seams are black-over-black dissolves: the `.gl-dim` veil (piecewise
+  segments over absolute scroll in stage.ts) is at full opacity whenever a
+  dark opaque section's edge is inside the viewport, so the edge never
+  shows. Content fades separately (manifesto exit scrub, stats entrance).
+  Anything that changes section heights must keep these segments in sync.
+- HTML HUD labels render ABOVE the veil (z-hud > z-dim): every label class
+  multiplies its opacity by the inverse veil gate; footprint labels also
+  fade inside the top 22–34% viewport band (mega title space).
+- Turbine rotors: blades are spaced around local Z inside a `spinner` group;
+  spin = spinner.rotation.z. Never animate a rotated parent's rotation.x —
+  Euler XYZ applies it in the parent frame (that was the "flipping" bug).
 
 ## Rules
 - Never copy Hut 8 copy/branding/assets. Technique replication only.

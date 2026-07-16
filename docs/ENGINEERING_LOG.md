@@ -78,3 +78,12 @@
 - Hero field base dot alpha 0.22→0.3; footer wordmark letters get hover
   lift + volt tint; OG title/description/type meta added.
 - Commit: (hash below)
+
+## 2026-07-16
+- Session restored via /context-restore from checkpoint
+  20260714-132251-substrate-review-pending. Dev server started for Kenny's
+  in-browser review (Vite, port 5183).
+- Added gstack skill routing rules to project CLAUDE.md (one-time gstack
+  setup, no product code touched).
+- Commit: this commit ("chore: add gstack skill routing rules to CLAUDE.md" —
+  log entry rides along, so no stable hash to cite).

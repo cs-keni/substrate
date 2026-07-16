@@ -45,7 +45,11 @@ export function road(route: THREE.Vector2[], width = 1.6, y = 0.03): THREE.Group
   geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geo.setIndex(indices);
   geo.computeVertexNormals();
-  g.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: ROAD_COLOR })));
+  const ribbon = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: ROAD_COLOR }));
+  // paper-thin: casting only produces shadow acne, never a visible shadow
+  ribbon.userData.noShadow = true;
+  ribbon.receiveShadow = true;
+  g.add(ribbon);
 
   // ink edges — the "drafted" look
   const edgeMat = new THREE.LineBasicMaterial({
@@ -123,6 +127,7 @@ export function scrub(
   z1: number,
   count: number,
   keepOut: Array<[number, number, number]> = [],
+  heightAt: (x: number, z: number) => number = () => 0,
 ): THREE.Group {
   const g = new THREE.Group();
   const tuftGeo = new THREE.ConeGeometry(0.32, 0.5, 5);
@@ -148,7 +153,7 @@ export function scrub(
     const s = 0.6 + hash21(attempts * 5.1, 1.3) * 0.9;
     q.setFromAxisAngle(up, hash21(attempts, 9.4) * Math.PI * 2);
     m.compose(
-      new THREE.Vector3(px, 0.18 * s, pz),
+      new THREE.Vector3(px, heightAt(px, pz) + 0.18 * s, pz),
       q,
       new THREE.Vector3(s, s, s),
     );
@@ -164,19 +169,3 @@ export function scrub(
   return g;
 }
 
-const blobGeo = new THREE.CircleGeometry(1, 20);
-const blobMat = new THREE.MeshBasicMaterial({
-  color: INK,
-  transparent: true,
-  opacity: 0.06,
-  depthWrite: false,
-});
-
-/** Soft grounding shadow under a structure — kills the "floating on paper" look. */
-export function blob(x: number, z: number, rx: number, rz = rx): THREE.Mesh {
-  const mesh = new THREE.Mesh(blobGeo, blobMat);
-  mesh.rotation.x = -Math.PI / 2;
-  mesh.scale.set(rx, rz, 1);
-  mesh.position.set(x, 0.012, z);
-  return mesh;
-}

@@ -104,6 +104,20 @@ postprocessing over the WebGL scene.
       legend, labels duck under the mega title band
 - [x] tsc + build green; headless screenshot pass over all five fixes
 
+## Phase 11 — Depth Pass (Kenny's second review, 2026-07-16)
+- [x] Real shadow mapping replaces the circle blobs (PCFSoft, one 2048px
+      static sun; everything solid casts, lambert surfaces receive)
+- [x] Ground relief: masked fbm hills displace the world plane (dead flat
+      under zones/roads via distance mask; scrub follows the height field;
+      shader contours trace the real hills; shadow catcher shares the geo)
+- [x] Cooling towers no longer see-through: double-sided shell + interior
+      water disc (sized inside the throat)
+- [x] Light contrast retuned (ambient 1.9→1.5, sun 2.2→2.6)
+- [x] Footprint: amplitude 16→21, deeper point shading, per-site building
+      clusters (hall/aux/tank scaled by MW, drawn pad boundary, deterministic
+      hash layout), site lights added
+- [x] tsc + build green; screenshot verification round 2
+
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
 - [ ] Simplified world geometry on small viewports

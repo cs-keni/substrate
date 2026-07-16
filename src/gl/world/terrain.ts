@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { NOISE_GLSL, fbm } from './noise';
+import { NOISE_GLSL, fbm, hash21 } from './noise';
+import { outlined, whiteMat } from '../palette';
 
 /**
  * FOOTPRINT — light point-cloud terrain. A displaced dot grid in paper
@@ -34,7 +35,7 @@ export interface TerrainScene {
 }
 
 const TERRAIN_SCALE = 0.021;
-const TERRAIN_AMP = 16.0;
+const TERRAIN_AMP = 21.0;
 
 function terrainHeight(x: number, z: number): number {
   return fbm(x * TERRAIN_SCALE, z * TERRAIN_SCALE) * TERRAIN_AMP - 6;
@@ -47,6 +48,12 @@ export function createTerrain(): TerrainScene {
   scene.fog = new THREE.Fog(paper, 60, 210);
 
   const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 500);
+
+  // lights for the lambert site buildings (the point cloud is unlit)
+  scene.add(new THREE.AmbientLight('#ffffff', 1.7));
+  const sun = new THREE.DirectionalLight('#fffdf5', 1.6);
+  sun.position.set(-50, 90, 40);
+  scene.add(sun);
 
   const COLS = 420;
   const ROWS = 260;
@@ -100,8 +107,8 @@ export function createTerrain(): TerrainScene {
       void main() {
         vec2 uv = gl_PointCoord - 0.5;
         if (length(uv) > 0.5) discard;
-        vec3 low = vec3(0.83, 0.82, 0.78);
-        vec3 high = vec3(0.32, 0.31, 0.28);
+        vec3 low = vec3(0.84, 0.83, 0.79);
+        vec3 high = vec3(0.25, 0.24, 0.21);
         vec3 col = mix(low, high, vShade);
         gl_FragColor = vec4(col, 0.85 * vFade);
       }
@@ -131,10 +138,61 @@ export function createTerrain(): TerrainScene {
     transparent: true,
     opacity: 0.65,
   });
+  const padLineMat = new THREE.LineBasicMaterial({
+    color: '#0e0f0c',
+    transparent: true,
+    opacity: 0.4,
+  });
+
+  /* A site is a tiny built campus, not a pin: a main hall + two auxiliary
+     blocks + a tank, scaled by capacity, on a drawn ground pad. Deterministic
+     per-site layout via hash21 so reloads don't reshuffle the map. */
+  const siteWorks = (x: number, z: number, frac: number, seed: number): THREE.Group => {
+    const g = new THREE.Group();
+    const base = terrainHeight(x, z);
+    const s = 0.9 + frac * 1.6;
+    const yaw = hash21(seed * 3.7, 1.9) * Math.PI * 2;
+
+    // keep clear of the site spike at (x, z)
+    const hall = outlined(new THREE.BoxGeometry(3.6 * s, 1.1 * s, 2.1 * s), whiteMat(), 0.4);
+    hall.position.set(x + 2.3 * s, base + 0.55 * s - 0.2, z + 0.9 * s);
+    hall.rotation.y = yaw;
+    g.add(hall);
+
+    const aux1 = outlined(new THREE.BoxGeometry(1.5 * s, 0.8 * s, 1.3 * s), whiteMat(), 0.4);
+    aux1.position.set(x - 1.9 * s, base + 0.4 * s - 0.2, z + 1.3 * s);
+    aux1.rotation.y = yaw + 0.35;
+    g.add(aux1);
+
+    const aux2 = outlined(new THREE.BoxGeometry(1.2 * s, 0.55 * s, 1.0 * s), whiteMat(), 0.4);
+    aux2.position.set(x + 0.4 * s, base + 0.28 * s - 0.2, z - 1.9 * s);
+    aux2.rotation.y = yaw - 0.2;
+    g.add(aux2);
+
+    const tank = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.5 * s, 0.5 * s, 0.9 * s, 12),
+      whiteMat(),
+    );
+    tank.position.set(x - 1.2 * s, base + 0.45 * s - 0.2, z - 1.2 * s);
+    g.add(tank);
+
+    // drawn pad boundary, draped just above the points
+    const half = 3.4 * s;
+    const corners = [
+      [x - half, z - half], [x + half, z - half],
+      [x + half, z + half], [x - half, z + half], [x - half, z - half],
+    ].map(([px, pz]) => new THREE.Vector3(px, terrainHeight(px, pz) + 0.5, pz));
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(corners), padLineMat));
+
+    return g;
+  };
+
   const maxMw = Math.max(...siteDefs.map(([, mw]) => parseInt(mw, 10)));
-  const sites: SiteMarker[] = siteDefs.map(([name, mw, x, z, status]) => {
+  const sites: SiteMarker[] = siteDefs.map(([name, mw, x, z, status], i) => {
     // spike height encodes capacity — the map gains a data axis
-    const yTop = terrainHeight(x, z) + 4 + (parseInt(mw, 10) / maxMw) * 13;
+    const frac = parseInt(mw, 10) / maxMw;
+    const yTop = terrainHeight(x, z) + 4 + frac * 13;
+    scene.add(siteWorks(x, z, frac, i + 1));
     const spikeGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(x, -8, z),
       new THREE.Vector3(x, yTop, z),

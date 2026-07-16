@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { boneMat, outlined, whiteMat, VOLT } from '../palette';
-import { road, blob } from './groundworks';
+import { road } from './groundworks';
 
 /**
  * LAYER 01 — GENERATION. Wind farm, solar field, cooling towers + thermal
@@ -58,7 +58,21 @@ function coolingTower(): THREE.Group {
   }
   const geo = new THREE.LatheGeometry(pts, 22);
   const g = new THREE.Group();
-  g.add(new THREE.Mesh(geo, whiteMat()));
+  // the lathe is an open shell — single-sided it reads as a hole straight
+  // through to the ground grid from the iso camera. Double-side the wall
+  // so the far interior is visible, and float a dark water disc inside.
+  const shellMat = whiteMat();
+  shellMat.side = THREE.DoubleSide;
+  g.add(new THREE.Mesh(geo, shellMat));
+  // radius must stay inside the shell at this height (inner r ≈ 1.53)
+  const water = new THREE.Mesh(
+    new THREE.CircleGeometry(1.42, 22),
+    new THREE.MeshLambertMaterial({ color: '#494a44' }),
+  );
+  water.rotation.x = -Math.PI / 2;
+  water.position.y = 5.2;
+  water.userData.noShadow = true;
+  g.add(water);
   const rim = new THREE.Mesh(
     new THREE.TorusGeometry(pts[14].x, 0.12, 8, 22),
     boneMat(),
@@ -144,9 +158,8 @@ export function buildGeneration(): THREE.Group {
     t.rotation.y = -0.4 + (Math.random() - 0.5) * 0.12;
     zone.add(t);
 
-    // grounding: shadow, gravel crane pad, and a pad-mount transformer —
-    // a turbine is a construction site, not a pin on a map
-    zone.add(blob(x, z, 2.4));
+    // grounding: gravel crane pad and a pad-mount transformer — a turbine
+    // is a construction site, not a pin on a map (shadows are real now)
     const padMesh = new THREE.Mesh(
       new THREE.BoxGeometry(3.4, 0.06, 2.6),
       new THREE.MeshLambertMaterial({ color: '#e3e1d8' }),
@@ -169,17 +182,14 @@ export function buildGeneration(): THREE.Group {
   const ct1 = coolingTower();
   ct1.position.set(16, 0, 8);
   zone.add(ct1);
-  zone.add(blob(16, 8, 4.2));
   const ct2 = coolingTower();
   ct2.scale.setScalar(0.85);
   ct2.position.set(24, 0, 3);
   zone.add(ct2);
-  zone.add(blob(24, 3, 3.6));
 
   const thermal = thermalBlock();
   thermal.position.set(18, 0, 18);
   zone.add(thermal);
-  zone.add(blob(18.6, 18.3, 7, 4.6));
 
   // apron pad tying the thermal cluster together
   const apron = new THREE.Mesh(
@@ -206,7 +216,6 @@ export function buildGeneration(): THREE.Group {
   collector.position.set(34, 0.8, 22);
   zone.add(collector);
   zone.add(fence(34, 22, 6));
-  zone.add(blob(34, 22, 3));
 
   return zone;
 }

@@ -56,6 +56,13 @@ src/
 - Turbine rotors: blades are spaced around local Z inside a `spinner` group;
   spin = spinner.rotation.z. Never animate a rotated parent's rotation.x —
   Euler XYZ applies it in the parent frame (that was the "flipping" bug).
+- Shadows are REAL (PCFSoft, one static sun in world.ts). Opt a mesh out
+  with `userData.noShadow = true`. The ground's dot-matrix ShaderMaterial
+  can't receive shadows — a ShadowMaterial catcher mesh shares its geometry.
+- World ground has relief: `worldGroundHeight(x,z)` (world.ts) is fbm masked
+  flat inside FLAT_ZONES + along the road route consts. Anything placed on
+  open land must call it for its y (scrub already does). Never place built
+  structures outside the flat mask without flattening there first.
 
 ## Rules
 - Never copy Hut 8 copy/branding/assets. Technique replication only.

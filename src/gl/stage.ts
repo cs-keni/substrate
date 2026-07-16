@@ -38,6 +38,9 @@ export function initStage(): void {
     powerPreference: 'high-performance',
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  // real shadows in the isometric world (one 2048px map, static sun)
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const field: FieldScene = createField();
   const world: WorldScene = createWorld();

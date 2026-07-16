@@ -4,7 +4,7 @@ import { PAPER, PAPER_DIM } from '../palette';
 import { buildGeneration, tickGeneration } from './generation';
 import { buildTransmission, tickTransmission } from './transmission';
 import { buildCompute, tickCompute } from './compute';
-import { NOISE_GLSL } from './noise';
+import { NOISE_GLSL, fbm } from './noise';
 import { road, fenceRect, scrub } from './groundworks';
 
 /**
@@ -39,8 +39,64 @@ export interface HudAnchor {
 const ISO_DIR = new THREE.Vector3(1, 1.05, 1).normalize();
 const VIEW_SIZE = 46; // half-height of ortho frustum at zoom 1
 
+/* ---- ground relief ----
+   The land rolls, but every built thing sits on flats: a mask holds the
+   surface at y=0 near the zones and along every road, and fbm hills rise
+   only beyond a margin. The fragment shader's mottling + contours sample
+   the SAME fbm field, so the drawn contours trace the real hills. */
+
+const v2 = (x: number, z: number) => new THREE.Vector2(x, z);
+
+// service road shadowing the transmission corridor (offset south)
+const SERVICE_ROAD = [
+  v2(-104.5, 49), v2(-86.5, 49), v2(-72.5, 35), v2(-44.5, 35),
+  v2(-28.5, 19), v2(-28.5, 11), v2(-6.5, 11), v2(1.5, 7),
+  v2(19.5, 6), v2(35.5, -7), v2(59.5, -7), v2(71.5, -19), v2(93.5, -19),
+];
+const WIND_SPUR = [
+  v2(-104.5, 49), v2(-114, 38), v2(-124, 24), v2(-132, 11), v2(-139, 1), v2(-144, -8),
+];
+const SOLAR_ROAD = [
+  v2(-104.5, 49), v2(-115, 47.5), v2(-123, 43.5), v2(-126.5, 35), v2(-126.5, 25),
+];
+const CAMPUS_ENTRY = [v2(93.5, -19), v2(87, -12), v2(80, -6)];
+
+// [cx, cz, radius] — development areas that must stay dead flat
+const FLAT_ZONES: Array<[number, number, number]> = [
+  [-114, 20, 54], // generation cluster (turbines/solar/thermal)
+  [0, 0, 34], // switchyard
+  [104, -26, 52], // compute campus
+  [-84, 40, 24], // collector yard / corridor head
+];
+const FLAT_ROUTES = [SERVICE_ROAD, WIND_SPUR, SOLAR_ROAD, CAMPUS_ENTRY];
+
+function distToSegment(px: number, pz: number, a: THREE.Vector2, b: THREE.Vector2): number {
+  const abx = b.x - a.x;
+  const abz = b.y - a.y;
+  const t = Math.max(0, Math.min(1, ((px - a.x) * abx + (pz - a.y) * abz) / (abx * abx + abz * abz)));
+  return Math.hypot(px - (a.x + abx * t), pz - (a.y + abz * t));
+}
+
+/** Terrain height for the world ground — 0 on the built flats, fbm hills beyond. */
+export function worldGroundHeight(x: number, z: number): number {
+  let d = Infinity;
+  for (const [cx, cz, r] of FLAT_ZONES) {
+    d = Math.min(d, Math.hypot(x - cx, z - cz) - r);
+    if (d <= 0) return 0;
+  }
+  for (const route of FLAT_ROUTES) {
+    for (let i = 0; i < route.length - 1; i++) {
+      d = Math.min(d, distToSegment(x, z, route[i], route[i + 1]) - 14);
+      if (d <= 0) return 0;
+    }
+  }
+  const t = Math.min(1, d / 36);
+  const mask = t * t * (3 - 2 * t); // smoothstep
+  return mask * (fbm(x * 0.014, z * 0.014) - 0.45) * 16;
+}
+
 function dotGround(): THREE.Mesh {
-  const geo = new THREE.PlaneGeometry(560, 420);
+  const geo = new THREE.PlaneGeometry(560, 420, 150, 112);
   const mat = new THREE.ShaderMaterial({
     uniforms: {
       uPaper: { value: PAPER },
@@ -91,9 +147,14 @@ function dotGround(): THREE.Mesh {
       }
     `,
   });
+  geo.rotateX(-Math.PI / 2);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    pos.setY(i, worldGroundHeight(pos.getX(i), pos.getZ(i)));
+  }
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.rotation.x = -Math.PI / 2;
   mesh.position.y = -0.02;
+  mesh.userData.noShadow = true;
   return mesh;
 }
 
@@ -102,9 +163,21 @@ export function createWorld(): WorldScene {
   scene.background = PAPER.clone();
   scene.fog = new THREE.Fog(PAPER.clone(), 160, 340);
 
-  scene.add(new THREE.AmbientLight('#ffffff', 1.9));
-  const sun = new THREE.DirectionalLight('#fffdf5', 2.2);
-  sun.position.set(-40, 80, 30);
+  // lower ambient + stronger sun = more facet contrast (reads more 3D),
+  // and the sun now casts real shadows — the ground truth of depth
+  scene.add(new THREE.AmbientLight('#ffffff', 1.5));
+  const sun = new THREE.DirectionalLight('#fffdf5', 2.6);
+  sun.position.set(-80, 160, 60);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -230;
+  sun.shadow.camera.right = 230;
+  sun.shadow.camera.top = 180;
+  sun.shadow.camera.bottom = -180;
+  sun.shadow.camera.near = 0.5;
+  sun.shadow.camera.far = 520;
+  sun.shadow.bias = -0.0002;
+  sun.shadow.normalBias = 0.05;
   scene.add(sun);
   const bounce = new THREE.DirectionalLight('#e8e6df', 0.7);
   bounce.position.set(50, 30, -40);
@@ -112,6 +185,17 @@ export function createWorld(): WorldScene {
 
   const ground = dotGround();
   scene.add(ground);
+
+  // shadow catcher: same displaced geometry, draws ONLY received shadows —
+  // the dot-matrix shader below stays untouched
+  const catcher = new THREE.Mesh(
+    ground.geometry,
+    new THREE.ShadowMaterial({ opacity: 0.13 }),
+  );
+  catcher.position.y = 0;
+  catcher.receiveShadow = true;
+  catcher.userData.noShadow = true;
+  scene.add(catcher);
 
   const generation = buildGeneration();
   generation.position.set(-118, 0, 18);
@@ -124,31 +208,13 @@ export function createWorld(): WorldScene {
   scene.add(compute);
 
   /* Groundworks — the connective tissue that makes the three zones read as
-     one built-out site instead of objects dropped on a plane. */
-  const v2 = (x: number, z: number) => new THREE.Vector2(x, z);
-
-  // service road shadowing the transmission corridor (offset south)
-  const serviceRoad = [
-    v2(-104.5, 49), v2(-86.5, 49), v2(-72.5, 35), v2(-44.5, 35),
-    v2(-28.5, 19), v2(-28.5, 11), v2(-6.5, 11), v2(1.5, 7),
-    v2(19.5, 6), v2(35.5, -7), v2(59.5, -7), v2(71.5, -19), v2(93.5, -19),
-  ];
-  scene.add(road(serviceRoad, 1.7));
-
-  // spur through the wind farm — turbines sit ALONG a road, as built
-  scene.add(road(
-    [v2(-104.5, 49), v2(-114, 38), v2(-124, 24), v2(-132, 11), v2(-139, 1), v2(-144, -8)],
-    1.3,
-  ));
-
-  // solar farm access track down its east edge
-  scene.add(road(
-    [v2(-104.5, 49), v2(-115, 47.5), v2(-123, 43.5), v2(-126.5, 35), v2(-126.5, 25)],
-    1.2,
-  ));
-
-  // campus entry off the corridor road
-  scene.add(road([v2(93.5, -19), v2(87, -12), v2(80, -6)], 1.5));
+     one built-out site instead of objects dropped on a plane. Routes are
+     module consts because the ground-relief mask flattens the land along
+     them (see worldGroundHeight). */
+  scene.add(road(SERVICE_ROAD, 1.7));
+  scene.add(road(WIND_SPUR, 1.3));
+  scene.add(road(SOLAR_ROAD, 1.2));
+  scene.add(road(CAMPUS_ENTRY, 1.5));
 
   // perimeter fences: solar block, switchyard, campus
   scene.add(fenceRect(-138.7, 36.4, 25, 23));
@@ -160,11 +226,22 @@ export function createWorld(): WorldScene {
   const keepOut: Array<[number, number, number]> = [
     [-138.7, 36.4, 15], [0, 0, 18], [104, -26, 40],
     [-100, 26, 12], [-100, 36, 10],
-    ...serviceRoad.map((p): [number, number, number] => [p.x, p.y, 6]),
+    ...SERVICE_ROAD.map((p): [number, number, number] => [p.x, p.y, 6]),
     [-114, 38, 5], [-124, 24, 5], [-132, 11, 5], [-139, 1, 5],
     [-126.5, 30, 5], [-123, 43.5, 5], [87, -12, 6],
   ];
-  scene.add(scrub(-160, -50, 150, 68, 620, keepOut));
+  scene.add(scrub(-160, -50, 150, 68, 620, keepOut, worldGroundHeight));
+
+  // real shadows everywhere: everything solid casts; lambert surfaces
+  // (pads, roads, walls, roofs) also receive so shadows don't vanish
+  // when they cross built ground
+  scene.traverse((obj) => {
+    if (!(obj instanceof THREE.Mesh) || obj.userData.noShadow) return;
+    obj.castShadow = true;
+    if ((obj.material as THREE.Material).type === 'MeshLambertMaterial') {
+      obj.receiveShadow = true;
+    }
+  });
 
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -400, 800);
   const camState = { x: -132, z: 4, zoom: 0.55 };

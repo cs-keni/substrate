@@ -131,4 +131,36 @@
   pass at 11 scroll positions verified all five fixes; two follow-ups found
   and fixed in the same pass (label/mega-title collision, caption dots over
   the black gap).
-- Commit: (hash in next entry — code + docs together)
+- Commit: 5c15b04 (review fixes round 1).
+- Kenny's second review → Phase 11 depth pass:
+  1. Real shadows replace the "perfect circle" blobs: renderer PCFSoft
+     shadow map (stage.ts), sun at (-80,160,60) casting through a 2048px
+     ortho box covering the whole world; scene.traverse sets castShadow on
+     every solid mesh (userData.noShadow opts out: ground, catcher, road
+     ribbons, tower water discs) and receiveShadow on all lambert surfaces.
+     A ShadowMaterial catcher (opacity 0.13) SHARES the displaced ground
+     geometry — the dot-matrix ShaderMaterial stays untouched. Spinning
+     blade shadows animate on the ground.
+  2. "Terrain doesn't feel 3D": the world plane now has real relief.
+     worldGroundHeight(x,z) in world.ts = fbm hills masked to zero within
+     FLAT_ZONES circles and 14u along every road polyline (routes moved to
+     module consts SERVICE_ROAD/WIND_SPUR/SOLAR_ROAD/CAMPUS_ENTRY so the
+     mask and the road meshes share coordinates). PlaneGeometry 150×112
+     segments, CPU-displaced; scrub() takes a heightAt fn so tufts sit on
+     the slopes. The fragment shader mottling/contours sample the SAME fbm
+     field, so drawn contours trace the actual hills.
+  3. See-through cooling towers: the lathe shell is open geometry and was
+     single-sided — from the iso camera you looked straight through the
+     unrendered inner wall to the ground grid. Fix: DoubleSide shell + a
+     dark water disc inside (r 1.42 at y 5.2 — first attempt at r 1.65
+     poked through the shell, inner radius there is ≈1.53).
+  4. Light contrast: ambient 1.9→1.5, sun 2.2→2.6 — faces model more.
+  5. Footprint depth: TERRAIN_AMP 16→21, point high-shade darkened, and
+     every site gains a building cluster (siteWorks(): hall + 2 aux + tank,
+     scaled by MW fraction, deterministic hash21 yaw, drawn pad-boundary
+     line draped on terrainHeight) with ambient+directional lights added to
+     the scene for the lambert boxes. Spike stays clear of the hall
+     (offset 2.3s after first attempt pierced the roof).
+- QA round 2: tsc + build green (stage chunk 546.6 kB); screenshots verified
+  turbine blade shadows, capped towers, relief, and site clusters.
+- Commit: (this commit)

@@ -7,6 +7,12 @@ isometric world, footprint terrain) with a shared grade pass; scroll infra
 is Lenis + ScrollTrigger (NOT ScrollSmoother — sticky sections depend on
 native scroll).
 
+Phase 12 added motion (5 curve-driven service trucks on the roads, 10 volt
+pulses on the traces) and per-site archetypes on the footprint map (campus /
+wind / solar / thermal / construction-with-crane — kinds assigned in
+terrain.ts siteDefs). Phase 11 added real PCFSoft shadows, masked-fbm ground
+relief, and capped cooling towers.
+
 Phase 10 shipped Kenny's browser-review fixes: correct turbine rotor spin
 (inner spinner group, blades around Z), black-over-black dissolves at BOTH
 dark seams (veil fully opaque while any dark slab edge is on screen — see

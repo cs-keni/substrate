@@ -95,6 +95,52 @@ export function worldGroundHeight(x: number, z: number): number {
   return mask * (fbm(x * 0.014, z * 0.014) - 0.45) * 16;
 }
 
+/* ---- road traffic ---- */
+
+interface Vehicle {
+  group: THREE.Group;
+  curve: THREE.CurvePath<THREE.Vector3>;
+  t: number;
+  speed: number; // in curve-t per second
+}
+
+function roadCurve(route: THREE.Vector2[]): THREE.CurvePath<THREE.Vector3> {
+  const path = new THREE.CurvePath<THREE.Vector3>();
+  for (let i = 0; i < route.length - 1; i++) {
+    path.add(new THREE.LineCurve3(
+      new THREE.Vector3(route[i].x, 0, route[i].y),
+      new THREE.Vector3(route[i + 1].x, 0, route[i + 1].y),
+    ));
+  }
+  return path;
+}
+
+/** Little service truck — white box body, bone cab, volt tail light. */
+function truck(): THREE.Group {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1.15, 0.5, 0.55),
+    new THREE.MeshLambertMaterial({ color: '#f4f3ef' }),
+  );
+  body.position.set(-0.1, 0.42, 0);
+  body.castShadow = true;
+  g.add(body);
+  const cab = new THREE.Mesh(
+    new THREE.BoxGeometry(0.42, 0.42, 0.5),
+    new THREE.MeshLambertMaterial({ color: '#cfcdc4' }),
+  );
+  cab.position.set(0.62, 0.36, 0);
+  cab.castShadow = true;
+  g.add(cab);
+  const tail = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.1, 0.3),
+    new THREE.MeshBasicMaterial({ color: '#ff4e00' }),
+  );
+  tail.position.set(-0.7, 0.4, 0);
+  g.add(tail);
+  return g;
+}
+
 function dotGround(): THREE.Mesh {
   const geo = new THREE.PlaneGeometry(560, 420, 150, 112);
   const mat = new THREE.ShaderMaterial({
@@ -216,6 +262,25 @@ export function createWorld(): WorldScene {
   scene.add(road(SOLAR_ROAD, 1.2));
   scene.add(road(CAMPUS_ENTRY, 1.5));
 
+  // service trucks patrol the roads — the human-scale motion that sells a
+  // working site (speeds are curve-t/s: scaled so long routes drive slower)
+  const vehicles: Vehicle[] = [];
+  const spawnTruck = (route: THREE.Vector2[], speed: number, t0: number, reverse = false) => {
+    const g = truck();
+    scene.add(g);
+    vehicles.push({
+      group: g,
+      curve: roadCurve(reverse ? [...route].reverse() : route),
+      t: t0,
+      speed,
+    });
+  };
+  spawnTruck(SERVICE_ROAD, 0.016, 0.1);
+  spawnTruck(SERVICE_ROAD, 0.014, 0.55);
+  spawnTruck(SERVICE_ROAD, 0.015, 0.32, true);
+  spawnTruck(WIND_SPUR, 0.05, 0.7);
+  spawnTruck(SOLAR_ROAD, 0.055, 0.2, true);
+
   // perimeter fences: solar block, switchyard, campus
   scene.add(fenceRect(-138.7, 36.4, 25, 23));
   scene.add(fenceRect(0, 0, 30, 22));
@@ -271,6 +336,13 @@ export function createWorld(): WorldScene {
     tickGeneration(dt);
     tickTransmission(dt);
     tickCompute(elapsed);
+    for (const v of vehicles) {
+      v.t = (v.t + dt * v.speed) % 1;
+      const pos = v.curve.getPointAt(v.t);
+      const tan = v.curve.getTangentAt(v.t);
+      v.group.position.set(pos.x, 0.02, pos.z);
+      v.group.rotation.y = Math.atan2(-tan.z, tan.x);
+    }
   };
 
   const hudAnchors: HudAnchor[] = [

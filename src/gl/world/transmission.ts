@@ -233,12 +233,17 @@ export function buildTransmission(): TransmissionBuild {
   group.add(pylonsAlong(spurA, 17, yardKeepOut));
   group.add(pylonsAlong(spurB, 17, yardKeepOut));
 
-  // energy pulses
+  // energy pulses — enough traffic that the grid always reads as live
   group.add(addPulse(corridor, 0.055));
   group.add(addPulse(corridor, 0.041));
+  group.add(addPulse(corridor, 0.047));
+  group.add(addPulse(corridor, 0.062));
   group.add(addPulse(corridorEast, 0.06));
   group.add(addPulse(corridorEast, 0.036));
+  group.add(addPulse(corridorEast, 0.052));
+  group.add(addPulse(spurA, 0.045));
   group.add(addPulse(spurB, 0.05));
+  group.add(addPulse(spurB, 0.038));
 
   // substation at origin
   const sub = new THREE.Group();

@@ -118,6 +118,15 @@ postprocessing over the WebGL scene.
       hash layout), site lights added
 - [x] tsc + build green; screenshot verification round 2
 
+## Phase 12 — Motion + Variety (Kenny's third review, 2026-07-16)
+- [x] Service trucks patrol the roads (5 vehicles, curve-driven, oriented,
+      shadow-casting, staggered offsets + one opposing direction)
+- [x] Volt pulse traffic doubled: 10 pulses across all four trace routes
+- [x] Footprint site archetypes: campus / wind / solar / thermal /
+      construction (crane + volt tip + ghost frame + laydown piles for the
+      two in-build sites); deterministic hash layouts, spike-clearance kept
+- [x] tsc + build green; screenshot verification round 3
+
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
 - [ ] Simplified world geometry on small viewports

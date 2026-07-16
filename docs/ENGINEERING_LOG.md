@@ -163,4 +163,27 @@
      (offset 2.3s after first attempt pierced the roof).
 - QA round 2: tsc + build green (stage chunk 546.6 kB); screenshots verified
   turbine blade shadows, capped towers, relief, and site clusters.
+- Commit: d605593 (depth pass).
+- Kenny's third review → Phase 12 motion + variety:
+  1. "More cars / moving red lines": world.ts gains road traffic — truck()
+     (white body, bone cab, volt tail light, castShadow) driven along
+     roadCurve(route) CurvePaths; 5 vehicles on SERVICE_ROAD (×3, one
+     reversed), WIND_SPUR, SOLAR_ROAD with staggered t0 and per-route
+     speeds in curve-t/s; ticked alongside rotors/pulses. transmission.ts
+     pulses 5→10 (corridor ×4, east ×3, spurA ×1, spurB ×2).
+  2. "Every site looks the same": terrain.ts siteWorks now dispatches to 5
+     archetype builders (campus: 2 parallel halls + sub + tank; wind: 3
+     mini turbines w/ hash-phased blade stars + hut; solar: 4 tilted panel
+     rows + inverter; thermal: block + 2 stacks + tank, offset clear of the
+     spike; construction: translucent ghost frame, tower crane with volt
+     tip and hash-yawed jib, laydown piles). Kinds live in siteDefs
+     ([name, mw, x, z, kind, status?]); cluster built in a local group with
+     hash yaw, pad boundary still draped in world space.
+  - QA gotcha: the browse daemon restarted mid-pass and reset the viewport
+    to 1280×720, shifting every absolute scroll offset — dark "bug"
+    screenshots were just the veil at the wrong scroll for that vh. Set
+    viewport BEFORE computing offsets (offsets derive from offsetTop).
+- QA round 3: tsc + build green (stage chunk 549.3 kB); screenshots show
+  trucks + pulse traffic on the corridor and distinct site silhouettes
+  (crane site verified up close).
 - Commit: (this commit)

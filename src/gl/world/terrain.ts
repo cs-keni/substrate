@@ -116,21 +116,23 @@ export function createTerrain(): TerrainScene {
   });
   scene.add(new THREE.Points(geo, mat));
 
-  // fictional sites — [x, z] on the terrain; twelve, matching the "12
-  // campuses" stat one band later
-  const siteDefs: Array<[string, string, number, number, string?]> = [
-    ['Iron Creek', '280 MW', -96, -38],
-    ['Cinder Basin', '205 MW', -52, 6],
-    ['Halvorsen Flats', '330 MW', 8, -52, 'UNDER CONSTRUCTION'],
-    ['North Fork', '63 MW', -18, 34],
-    ['Redgate', '50 MW', 44, 18],
-    ['Wolf Lake', '42 MW', 88, -18],
-    ['Meridian', '67 MW', 118, 22],
-    ['Kettle Rapids', '110 MW', 62, -66, 'UNDER DEVELOPMENT'],
-    ['Two Pines', '96 MW', 152, -44],
-    ['Saltern', '75 MW', -140, 16],
-    ['Braxton Ridge', '150 MW', -74, -62],
-    ['Copper Sound', '88 MW', 20, 46],
+  // fictional sites — [name, mw, x, z, kind, status?]; twelve, matching the
+  // "12 campuses" stat one band later. `kind` picks the building archetype
+  // so every site reads as its own kind of infrastructure.
+  type SiteKind = 'campus' | 'wind' | 'solar' | 'thermal' | 'construction';
+  const siteDefs: Array<[string, string, number, number, SiteKind, string?]> = [
+    ['Iron Creek', '280 MW', -96, -38, 'campus'],
+    ['Cinder Basin', '205 MW', -52, 6, 'thermal'],
+    ['Halvorsen Flats', '330 MW', 8, -52, 'construction', 'UNDER CONSTRUCTION'],
+    ['North Fork', '63 MW', -18, 34, 'wind'],
+    ['Redgate', '50 MW', 44, 18, 'solar'],
+    ['Wolf Lake', '42 MW', 88, -18, 'wind'],
+    ['Meridian', '67 MW', 118, 22, 'solar'],
+    ['Kettle Rapids', '110 MW', 62, -66, 'construction', 'UNDER DEVELOPMENT'],
+    ['Two Pines', '96 MW', 152, -44, 'campus'],
+    ['Saltern', '75 MW', -140, 16, 'thermal'],
+    ['Braxton Ridge', '150 MW', -74, -62, 'wind'],
+    ['Copper Sound', '88 MW', 20, 46, 'campus'],
   ];
 
   const spikeMat = new THREE.LineBasicMaterial({
@@ -144,37 +146,149 @@ export function createTerrain(): TerrainScene {
     opacity: 0.4,
   });
 
-  /* A site is a tiny built campus, not a pin: a main hall + two auxiliary
-     blocks + a tank, scaled by capacity, on a drawn ground pad. Deterministic
-     per-site layout via hash21 so reloads don't reshuffle the map. */
-  const siteWorks = (x: number, z: number, frac: number, seed: number): THREE.Group => {
+  /* A site is a tiny built place, not a pin — and each KIND of site builds
+     differently: compute campuses are parallel halls, wind sites are mini
+     turbines, solar sites are panel rows, thermal sites carry stacks, and
+     in-build sites are cranes over foundations. Deterministic hash21 layout
+     so reloads don't reshuffle the map. All local coords inside a yawed
+     group; the drawn pad boundary is draped on the terrain in world space. */
+  const tankMesh = (s: number): THREE.Mesh =>
+    new THREE.Mesh(new THREE.CylinderGeometry(0.5 * s, 0.5 * s, 0.9 * s, 12), whiteMat());
+
+  const archetypes: Record<string, (g: THREE.Group, s: number, seed: number) => void> = {
+    campus: (g, s) => {
+      for (let i = 0; i < 2; i++) {
+        const hall = outlined(new THREE.BoxGeometry(3.8 * s, 0.9 * s, 1.4 * s), whiteMat(), 0.4);
+        hall.position.set(0.6 * s, 0.45 * s, (i - 0.5) * 2.1 * s);
+        g.add(hall);
+      }
+      const sub = outlined(new THREE.BoxGeometry(1.1 * s, 0.6 * s, 1.0 * s), whiteMat(), 0.4);
+      sub.position.set(-2.4 * s, 0.3 * s, 1.6 * s);
+      g.add(sub);
+      const tank = tankMesh(s);
+      tank.position.set(-2.2 * s, 0.45 * s, -1.5 * s);
+      g.add(tank);
+    },
+    wind: (g, s, seed) => {
+      const spots: Array<[number, number]> = [[-1.9, -1.4], [0.3, 1.7], [2.0, -0.7]];
+      spots.forEach(([tx, tz], i) => {
+        const tower = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.05 * s, 0.09 * s, 2.4 * s, 6),
+          whiteMat(),
+        );
+        tower.position.set(tx * s, 1.2 * s, tz * s);
+        g.add(tower);
+        const star = new THREE.Group();
+        for (let b = 0; b < 3; b++) {
+          const blade = new THREE.Mesh(
+            new THREE.BoxGeometry(0.05 * s, 1.0 * s, 0.09 * s),
+            whiteMat(),
+          );
+          blade.geometry.translate(0, 0.5 * s, 0);
+          blade.rotation.z = (b * Math.PI * 2) / 3 + hash21(seed, i) * 2;
+          star.add(blade);
+        }
+        star.position.set(tx * s, 2.4 * s, tz * s);
+        star.rotation.y = Math.PI / 2;
+        g.add(star);
+      });
+      const hut = outlined(new THREE.BoxGeometry(1.3 * s, 0.5 * s, 0.9 * s), whiteMat(), 0.4);
+      hut.position.set(0.2 * s, 0.25 * s, -1.9 * s);
+      g.add(hut);
+    },
+    solar: (g, s) => {
+      const rowGeo = new THREE.BoxGeometry(3.0 * s, 0.09 * s, 0.5 * s);
+      rowGeo.rotateX(-0.32);
+      const rowMat = new THREE.MeshLambertMaterial({ color: '#c9c7be' });
+      for (let i = 0; i < 4; i++) {
+        const row = new THREE.Mesh(rowGeo, rowMat);
+        row.position.set(0.4 * s, 0.3 * s, (i - 1.5) * 1.05 * s);
+        g.add(row);
+      }
+      const inverter = outlined(new THREE.BoxGeometry(0.9 * s, 0.55 * s, 0.8 * s), whiteMat(), 0.4);
+      inverter.position.set(-2.3 * s, 0.28 * s, 0);
+      g.add(inverter);
+    },
+    thermal: (g, s) => {
+      // offset so the site spike at local (0,0) doesn't pierce the roof
+      const block = outlined(new THREE.BoxGeometry(2.6 * s, 1.1 * s, 1.8 * s), whiteMat(), 0.4);
+      block.position.set(1.5 * s, 0.55 * s, 1.1 * s);
+      g.add(block);
+      for (let i = 0; i < 2; i++) {
+        const stack = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.14 * s, 0.18 * s, 2.2 * s, 8),
+          whiteMat(),
+        );
+        stack.position.set((-0.9 - i * 0.75) * s, 1.1 * s, -0.8 * s);
+        g.add(stack);
+      }
+      const tank = tankMesh(s);
+      tank.position.set(-1.8 * s, 0.45 * s, 1.3 * s);
+      g.add(tank);
+    },
+    construction: (g, s, seed) => {
+      // ghost frame: the future hall, translucent, edges only firm
+      const frameMat = whiteMat();
+      frameMat.transparent = true;
+      frameMat.opacity = 0.42;
+      const frame = outlined(new THREE.BoxGeometry(2.8 * s, 0.8 * s, 1.7 * s), frameMat, 0.5);
+      frame.position.set(0.9 * s, 0.4 * s, 0.5 * s);
+      g.add(frame);
+
+      // tower crane with a volt tip — the universal "we're building" flag
+      const mast = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.07 * s, 0.07 * s, 2.8 * s, 6),
+        whiteMat(),
+      );
+      mast.position.set(-1.2 * s, 1.4 * s, -0.6 * s);
+      g.add(mast);
+      const jib = new THREE.Mesh(
+        new THREE.BoxGeometry(3.2 * s, 0.09 * s, 0.09 * s),
+        whiteMat(),
+      );
+      jib.position.set(-1.2 * s + 0.9 * s, 2.75 * s, -0.6 * s);
+      jib.rotation.y = hash21(seed * 7.7, 2.3) * Math.PI * 2;
+      g.add(jib);
+      const tip = new THREE.Mesh(
+        new THREE.BoxGeometry(0.16 * s, 0.16 * s, 0.16 * s),
+        new THREE.MeshBasicMaterial({ color: '#ff4e00' }),
+      );
+      tip.position.set(-1.2 * s, 2.9 * s, -0.6 * s);
+      g.add(tip);
+
+      // laydown: material piles
+      for (let i = 0; i < 3; i++) {
+        const pile = new THREE.Mesh(
+          new THREE.BoxGeometry(0.7 * s, 0.22 * s, 0.5 * s),
+          new THREE.MeshLambertMaterial({ color: '#cfcdc4' }),
+        );
+        pile.position.set(
+          (-2.2 + hash21(seed, i * 3.1) * 1.2) * s,
+          0.11 * s,
+          (1.4 + hash21(i * 1.7, seed) * 0.9) * s,
+        );
+        pile.rotation.y = hash21(seed * 2.9, i) * 0.8;
+        g.add(pile);
+      }
+    },
+  };
+
+  const siteWorks = (
+    x: number,
+    z: number,
+    frac: number,
+    seed: number,
+    kind: SiteKind,
+  ): THREE.Group => {
     const g = new THREE.Group();
     const base = terrainHeight(x, z);
     const s = 0.9 + frac * 1.6;
-    const yaw = hash21(seed * 3.7, 1.9) * Math.PI * 2;
 
-    // keep clear of the site spike at (x, z)
-    const hall = outlined(new THREE.BoxGeometry(3.6 * s, 1.1 * s, 2.1 * s), whiteMat(), 0.4);
-    hall.position.set(x + 2.3 * s, base + 0.55 * s - 0.2, z + 0.9 * s);
-    hall.rotation.y = yaw;
-    g.add(hall);
-
-    const aux1 = outlined(new THREE.BoxGeometry(1.5 * s, 0.8 * s, 1.3 * s), whiteMat(), 0.4);
-    aux1.position.set(x - 1.9 * s, base + 0.4 * s - 0.2, z + 1.3 * s);
-    aux1.rotation.y = yaw + 0.35;
-    g.add(aux1);
-
-    const aux2 = outlined(new THREE.BoxGeometry(1.2 * s, 0.55 * s, 1.0 * s), whiteMat(), 0.4);
-    aux2.position.set(x + 0.4 * s, base + 0.28 * s - 0.2, z - 1.9 * s);
-    aux2.rotation.y = yaw - 0.2;
-    g.add(aux2);
-
-    const tank = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.5 * s, 0.5 * s, 0.9 * s, 12),
-      whiteMat(),
-    );
-    tank.position.set(x - 1.2 * s, base + 0.45 * s - 0.2, z - 1.2 * s);
-    g.add(tank);
+    const cluster = new THREE.Group();
+    archetypes[kind](cluster, s, seed);
+    cluster.position.set(x, base - 0.2, z);
+    cluster.rotation.y = hash21(seed * 3.7, 1.9) * Math.PI * 2;
+    g.add(cluster);
 
     // drawn pad boundary, draped just above the points
     const half = 3.4 * s;
@@ -188,11 +302,11 @@ export function createTerrain(): TerrainScene {
   };
 
   const maxMw = Math.max(...siteDefs.map(([, mw]) => parseInt(mw, 10)));
-  const sites: SiteMarker[] = siteDefs.map(([name, mw, x, z, status], i) => {
+  const sites: SiteMarker[] = siteDefs.map(([name, mw, x, z, kind, status], i) => {
     // spike height encodes capacity — the map gains a data axis
     const frac = parseInt(mw, 10) / maxMw;
     const yTop = terrainHeight(x, z) + 4 + frac * 13;
-    scene.add(siteWorks(x, z, frac, i + 1));
+    scene.add(siteWorks(x, z, frac, i + 1, kind));
     const spikeGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(x, -8, z),
       new THREE.Vector3(x, yTop, z),

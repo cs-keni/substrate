@@ -21,6 +21,9 @@ export function initIndustries(): void {
       x: 40,
       duration: 0.7,
       ease: 'power3.out',
+      // hand opacity/transform back to CSS (.is-lit spotlight, :hover volt
+      // slide) — stranded inline styles were capping the list at 0.24
+      clearProps: 'all',
       scrollTrigger: { trigger: li, start: 'top 92%', once: true },
     });
   });

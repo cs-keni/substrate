@@ -1,5 +1,20 @@
 # ENGINEERING_LOG
 
+## 2026-07-18 (Fix: industries spotlight/hover capped at 0.24 opacity)
+- Kenny's catch: "Powering what's next" list never got bright on hover.
+  Root cause = the footer-wordmark bug class again: industries.ts
+  gsap.from(li, {opacity:0, x:40}) leaves inline opacity:0.24 +
+  transform:translate(0,0) on completion, and inline beats both
+  .is-lit (opacity 1, white) and :hover (volt, translateX). The section
+  has been muted since the intro tween landed.
+- Fix: clearProps:'all' on the li from-tween. Verified: inline style
+  empty after intro; lit item = opacity 1 rgb(244,243,239); hover =
+  volt rgb(255,78,0), translateX 23.5px, wdth 125. Screenshot clean.
+- Swept every other gsap.from target: footer wordmark already guarded;
+  .text-link hover only animates ::after (inert vs inline styles); the
+  rest have no later class/hover claims on opacity/transform. Rule added
+  to AI_CONTEXT.
+
 ## 2026-07-18 (Mobile quality tier — ISSUE-005 runtime half)
 - New src/gl/quality.ts: LOW_POWER (min screen edge <700 OR innerWidth
   <820 at load) → GRID 0.6, DENSITY 0.45, SHADOW_MAP 1024, DPR_CAP 1.4.

@@ -98,5 +98,10 @@ src/
 ## Rules
 - Never copy Hut 8 copy/branding/assets. Technique replication only.
 - Docs update after every code change (see CLAUDE.md global rules).
-- Commit after every implementation slice; no remote configured yet → local
-  commits only (push when a remote is added).
+- Commit after every implementation slice and push — origin is
+  github.com/cs-keni/substrate; Vercel auto-deploys main to
+  https://substrate-theta.vercel.app/.
+- Any gsap.from()/fromTo() on an element whose opacity or transform is
+  ALSO controlled by a CSS class or :hover rule MUST clearProps those
+  properties on complete — stranded inline styles override the class
+  rules silently (footer wordmark bug, industries spotlight bug).

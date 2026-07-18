@@ -445,7 +445,8 @@
 }
 
 .industries-list li {
-  font-size: var(--step-3);
+  /* vw guard: "SEMICONDUCTOR" must fit the viewport at 375px */
+  font-size: min(var(--step-3), 9.2vw);
   font-weight: 750;
   font-variation-settings: 'wdth' 116;
   text-transform: uppercase;
@@ -622,6 +623,8 @@
   }
 
   .hero-eyebrow {
-    max-width: 11rem; /* clear the nav pill */
+    /* clear the fixed nav cluster (~15.5rem incl. gutter + gap) at ANY
+       narrow width — a fixed 11rem cap still collided at 375px */
+    max-width: calc(100vw - 15.5rem);
   }
 }

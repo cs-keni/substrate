@@ -155,7 +155,22 @@ postprocessing over the WebGL scene.
       roads, 12-link inter-site road network, hamlets along the roads
 - [x] tsc + build green; headless screenshot verification
 
+## Phase 15 — Mobile Polish (QA round, 2026-07-17)
+- [x] Footer wordmark: intro tween no longer fights the spans' CSS transform
+      transition (transition off during intro, clearProps on complete) —
+      kills the stranded-matrix overlap on viewport change/rotation
+- [x] Hero eyebrow clears the nav pill at every width
+      (max-width: calc(100vw - 15.5rem) replaces the fixed 11rem cap)
+- [x] Journey HUD callouts dissolve before clipping the viewport edge
+      (cached card size + edge-proximity fade in hud.ts)
+- [x] Menu items fit at 375px (font-size min(--step-4, 10.5vw))
+- [x] Industries list fits at 375px (font-size min(--step-3, 9.2vw))
+- [x] Re-verified at 375/768/1440 including the rotation scenario; desktop
+      unchanged (vw guards only bite below ~1000px)
+
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
 - [ ] Simplified world geometry on small viewports
 - [ ] Deploy target (static host) + share link
+- [ ] Scroll progress affordance (volt rail or nav numbers filling in)
+- [ ] SR text alternative for journey HUD data + visible focus states

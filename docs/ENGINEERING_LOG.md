@@ -1,5 +1,30 @@
 # ENGINEERING_LOG
 
+## 2026-07-17 (Phase 15: mobile polish — /qa-only findings + 375px sweep)
+- QA report (94/100) at .gstack/qa-reports/qa-report-localhost-5183-2026-07-17.md;
+  all findings were mobile. Fixed five:
+- Footer wordmark stranded over the legal line: the intro `gsap.from` and the
+  spans' CSS `transition: transform` (hover lift) drove the same property; a
+  ScrollTrigger refresh (viewport change/rotation) could freeze a mid-flight
+  matrix — measured a stale translateY(102px) = 60% of the DESKTOP span
+  height stuck on mobile. Fix in footer.ts: inline `transition: none` during
+  the intro, `clearProps: 'all'` on complete. Desktop also benefited (glyphs
+  no longer dip into the rule).
+- Hero eyebrow vs nav pill at 375px: fixed 11rem cap still collided (eyebrow
+  right edge 196px vs pill x 179). Now `max-width: calc(100vw - 15.5rem)`.
+- Journey HUD callouts clipped at viewport edges on mobile (turbine +
+  substation cards): hud.ts caches each card's size and multiplies fade by
+  an edge-proximity factor (36px ramp, 8px pad) — cards dissolve before
+  clipping, anchors never detach from their world points.
+- 375px sweep found two more clips, both fixed with the hero-title vw-guard
+  idiom: menu items (`min(--step-4, 10.5vw)`, "Transmission" now fits) and
+  industries list (`min(--step-3, 9.2vw)`, "SEMICONDUCTOR" now fits).
+- QA ISSUE-004 corrected: #gl-stage/#hud-layer already have aria-hidden;
+  the report flagged the inner canvas by mistake. No change needed.
+- tsc + build green; re-verified 375/768/1440 incl. the rotation scenario
+  (span transform reads `none` after desktop→mobile switch); no console
+  errors. Scroll-progress + SR-alternative logged as backlog items.
+
 ## 2026-07-17 (Phase 14: living world — all four passes, Kenny's pick)
 - New src/gl/world/nature.ts: ponds (grid-scanned fbm lowland minima; flat
   water discs at min+1.0 that the surrounding relief clips into organic

@@ -24,8 +24,11 @@ function project(
   };
 }
 
+const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
+
 export class JourneyHud {
   private els = new Map<string, HTMLElement>();
+  private sizes = new Map<string, { w: number; h: number }>();
 
   constructor(
     private host: HTMLElement,
@@ -63,7 +66,20 @@ export class JourneyHud {
       // ease in/out at the window edges
       const span = end - start;
       const local = (progress - start) / span;
-      const fade = Math.min(1, Math.min(local, 1 - local) * 6);
+      let fade = Math.min(1, Math.min(local, 1 - local) * 6);
+      // dissolve before the card clips the viewport (small screens): the
+      // anchor stays honest — the label never detaches from its world point
+      let size = this.sizes.get(a.id);
+      if (!size || size.w === 0) {
+        size = { w: el.offsetWidth, h: el.offsetHeight };
+        this.sizes.set(a.id, size);
+      }
+      fade *= Math.min(
+        clamp01((w - 8 - (p.x + size.w)) / 36),
+        clamp01((h - 8 - (p.y + size.h)) / 36),
+        clamp01((p.x - 8) / 36),
+        clamp01((p.y - 8) / 36),
+      );
       el.style.opacity = fade.toFixed(3);
       // small rise as the callout fades in — reads as "pinned on" rather
       // than popped

@@ -1,6 +1,13 @@
 # HANDOFF
 
 ## Current state (2026-07-17)
+Phase 15 (mobile polish) closed the /qa-only findings: footer wordmark
+intro no longer fights the spans' CSS transform transition (clearProps on
+complete — the stranded-matrix rotation bug), hero eyebrow clears the nav
+pill at any width, journey HUD cards edge-fade instead of clipping, and the
+menu + industries type got vw guards (hero-title idiom) so nothing clips at
+375px. QA health 94/100; report in .gstack/qa-reports/.
+
 Phase 13 (round-4 review fixes) shipped: intro and thesis backgrounds now
 share one true black (`--ink-deep` #020202 matches the composer's crushed GL
 black — see AI_CONTEXT "renders DARKER" decision before touching any dark

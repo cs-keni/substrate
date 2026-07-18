@@ -178,7 +178,8 @@
 }
 
 .menu-list span {
-  font-size: var(--step-4);
+  /* vw guard: "Transmission" must fit beside its number at 375px */
+  font-size: min(var(--step-4), 10.5vw);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.02em;

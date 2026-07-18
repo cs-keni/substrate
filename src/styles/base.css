@@ -76,6 +76,32 @@ svg {
   outline-offset: 3px;
 }
 
+/* volt outline is invisible on volt-filled pills — ring those in paper */
+.nav-pill:focus-visible {
+  outline-color: var(--paper);
+}
+
+/* hidden until keyboard focus, then a volt pill above all fixed chrome */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: calc(var(--z-preloader) + 1);
+  padding: 0.7rem 1.1rem;
+  background: var(--volt);
+  color: var(--ink-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  transform: translateY(calc(-100% - 1.5rem));
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+  outline-color: var(--paper);
+}
+
 /* ---- fixed stage layers ---- */
 .gl-stage {
   position: fixed;

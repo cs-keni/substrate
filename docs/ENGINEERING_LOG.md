@@ -1,5 +1,20 @@
 # ENGINEERING_LOG
 
+## 2026-07-18 (A11y: SR journey narrative, skip link, focus management)
+- Journey section: visually-hidden waypoint list mirroring the six HUD
+  anchors (turbine, solar, collector, switchyard, hall, racks) — the HUD
+  layer is aria-hidden so SR users previously got none of that data.
+- Skip link (first tabbable, volt pill, slides in on :focus-visible,
+  z above preloader) → #top.
+- .nav-pill:focus-visible outlines in paper — the global volt ring was
+  invisible on volt-filled pills.
+- nav.ts: menu open moves focus to first menu link (rAF after the
+  visibility .set), close restores focus to the toggle; Tab is trapped
+  among .site-nav pills + overlay links while open (they sit above the
+  overlay; content behind is scroll-locked and shouldn't take focus).
+- Verified in headless Chromium: skip-link appears focused with paper
+  ring; open→#layer-generation, Tab→#layer-transmission, Esc→toggle.
+
 ## 2026-07-18 (Ship: live URL, README, OG/Twitter social card)
 - Live at https://substrate-theta.vercel.app/ (Vercel, auto-deploys main).
 - README.md created with live URL, stack, dev commands.

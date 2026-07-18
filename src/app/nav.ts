@@ -38,16 +38,42 @@ export function initNav(): void {
     if (next) {
       stopScroll();
       menuTl.timeScale(1).play();
+      // move focus in once the overlay is visible (the .set fires on play)
+      requestAnimationFrame(() => {
+        overlay.querySelector<HTMLElement>('[data-menu-link]')?.focus({ preventScroll: true });
+      });
     } else {
       startScroll();
       menuTl.timeScale(1.6).reverse();
       overlay.setAttribute('aria-hidden', 'true');
+      if (overlay.contains(document.activeElement)) {
+        toggle.focus({ preventScroll: true });
+      }
     }
   };
 
   toggle.addEventListener('click', () => setOpen(!open));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && open) setOpen(false);
+    if (e.key === 'Tab' && open) {
+      // keep focus among the chrome that sits above the overlay
+      const focusables = Array.from(
+        document.querySelectorAll<HTMLElement>('.site-nav .nav-pill, #menu-overlay [data-menu-link]'),
+      );
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      } else if (!active || !focusables.includes(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   overlay.querySelectorAll<HTMLAnchorElement>('[data-menu-link]').forEach((a) => {

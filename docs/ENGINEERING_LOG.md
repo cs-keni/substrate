@@ -1,5 +1,23 @@
 # ENGINEERING_LOG
 
+## 2026-07-18 (Mobile quality tier — ISSUE-005 runtime half)
+- New src/gl/quality.ts: LOW_POWER (min screen edge <700 OR innerWidth
+  <820 at load) → GRID 0.6, DENSITY 0.45, SHADOW_MAP 1024, DPR_CAP 1.4.
+  Applied: hero field 220×120→132×72 pts (-64%), footprint cloud
+  420×260→252×156 (-64%), world ground plane segs 150×112→90×67,
+  meadow tufts 2600→1170, shadow map quarter the texels, and ~35% fewer
+  canvas pixels from the DPR cap. Tier decided once at load (scenes are
+  never rebuilt on resize) — a narrowed desktop window gets the simple
+  world until reload, accepted trade.
+- Verified: 375px journey + footprint keep the drawing language (sparser
+  dots read as intentional); 1440px unchanged (LOW_POWER false). Build
+  green; console clean.
+- ISSUE-005 download half: stage chunk unchanged at 575 kB / 152 kB gzip —
+  it is code-split and fetched behind the preloader (main.ts dynamic
+  import), so it never blocks first paint. Shrinking it further means a
+  named-import three.js refactor with low expected yield (the renderer
+  pulls most of core); parked unless it becomes a real complaint.
+
 ## 2026-07-18 (Magnetic nav pills)
 - New src/app/magnetic.ts: proximity field (48px past the pill edge) pulls
   each .nav-pill toward the pointer (x*0.18, y*0.26, minus the old 2px

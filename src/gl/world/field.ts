@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GRID } from '../quality';
 
 /**
  * HERO — dark energy field. A wave point-grid rendered with a custom
@@ -49,8 +50,8 @@ export function createField(): FieldScene {
   camera.position.set(0, 9, 46);
   camera.lookAt(0, 2, 0);
 
-  const COLS = 220;
-  const ROWS = 120;
+  const COLS = Math.round(220 * GRID);
+  const ROWS = Math.round(120 * GRID);
   const positions = new Float32Array(COLS * ROWS * 3);
   const seeds = new Float32Array(COLS * ROWS);
   let i3 = 0;

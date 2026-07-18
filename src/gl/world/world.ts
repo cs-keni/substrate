@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GRID, SHADOW_MAP } from '../quality';
 import gsap from 'gsap';
 import { PAPER, PAPER_DIM } from '../palette';
 import { buildGeneration, tickGeneration } from './generation';
@@ -156,7 +157,12 @@ function truck(): THREE.Group {
 }
 
 function dotGround(): THREE.Mesh {
-  const geo = new THREE.PlaneGeometry(560, 420, 150, 112);
+  const geo = new THREE.PlaneGeometry(
+    560,
+    420,
+    Math.round(150 * GRID),
+    Math.round(112 * GRID),
+  );
   const mat = new THREE.ShaderMaterial({
     uniforms: {
       uPaper: { value: PAPER },
@@ -243,7 +249,7 @@ export function createWorld(): WorldScene {
   const sun = new THREE.DirectionalLight('#fffdf5', 2.6);
   sun.position.set(-80, 160, 60);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(SHADOW_MAP, SHADOW_MAP);
   sun.shadow.camera.left = -230;
   sun.shadow.camera.right = 230;
   sun.shadow.camera.top = 180;

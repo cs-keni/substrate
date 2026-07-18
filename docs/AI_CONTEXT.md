@@ -37,6 +37,13 @@ src/
 ```
 
 ## Key implementation decisions
+- Quality tier (src/gl/quality.ts): LOW_POWER = min screen edge <700px OR
+  innerWidth <820 at load. Scales point/mesh grid resolution (×0.6/axis:
+  hero field, footprint cloud, world ground), meadow scatter (×0.45),
+  shadow map (1024 vs 2048), and the DPR cap (1.4 vs 1.75). Decided ONCE
+  at module init — scenes are never rebuilt on resize, so the tier is
+  sticky for the session. Desktop values are the original constants;
+  any new scatter/grid should multiply by DENSITY/GRID from that module.
 - Camera scrub: one ScrollTrigger over the tall `.journey` section maps
   scroll progress → spline position; HTML title cards pin at waypoints.
 - The isometric world is white-on-white: `MeshLambertMaterial` flat colors +

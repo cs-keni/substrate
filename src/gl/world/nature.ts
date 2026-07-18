@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { DENSITY } from '../quality';
 import { INK, boneMat, whiteMat, outlined } from '../palette';
 import { vnoise, hash21 } from './noise';
 import { road } from './groundworks';
@@ -155,7 +156,7 @@ function buildMeadows(
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
   const up = new THREE.Vector3(0, 1, 0);
-  for (let i = 0; i < 2600; i++) {
+  for (let i = 0; i < Math.round(2600 * DENSITY); i++) {
     const px = -160 + hash21(i * 1.9, 6.7) * 310;
     const pz = -70 + hash21(i * 3.7, 2.3) * 150;
     if (vnoise(px * 0.031 + 41.7, pz * 0.031 + 13.3) < 0.56) continue;

@@ -1,6 +1,18 @@
 # HANDOFF
 
-## Current state (2026-07-17)
+## Current state (2026-07-18)
+Shipped and live: https://substrate-theta.vercel.app/ (Vercel auto-deploys
+main; repo github.com/cs-keni/substrate). Same-day polish pass landed four
+commits: OG/Twitter social card (public/og.jpg, real hero capture), a11y
+(SR journey waypoints, skip link, pill focus ring, menu focus trap),
+magnetic nav pills (src/app/magnetic.ts — GSAP owns pill transform, CSS
+hover transform removed), and a mobile quality tier (src/gl/quality.ts:
+LOW_POWER when min screen edge <700px or innerWidth <820 → grid res ×0.6,
+meadow density ×0.45, shadow map 1024, DPR cap 1.4; decided once at load,
+scenes are never rebuilt on resize). Desktop rendering is unchanged.
+Backlog decision on record: scroll progress = volt rail (deferred).
+
+## Previous state (2026-07-17)
 Phase 15 (mobile polish) closed the /qa-only findings: footer wordmark
 intro no longer fights the spans' CSS transform transition (clearProps on
 complete — the stranded-matrix rotation bug), hero eyebrow clears the nav

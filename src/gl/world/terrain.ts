@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GRID } from '../quality';
 import { NOISE_GLSL, fbm, hash21 } from './noise';
 import { outlined, whiteMat } from '../palette';
 
@@ -55,8 +56,8 @@ export function createTerrain(): TerrainScene {
   sun.position.set(-50, 90, 40);
   scene.add(sun);
 
-  const COLS = 420;
-  const ROWS = 260;
+  const COLS = Math.round(420 * GRID);
+  const ROWS = Math.round(260 * GRID);
   const W = 420;
   const D = 300;
   const positions = new Float32Array(COLS * ROWS * 3);

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { DPR_CAP } from './quality';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { createField, type FieldScene } from './world/field';
@@ -56,7 +57,7 @@ export function initStage(): void {
   let h = window.innerHeight;
   let journeyProgress = 0;
 
-  const dpr = () => Math.min(window.devicePixelRatio, 1.75);
+  const dpr = () => Math.min(window.devicePixelRatio, DPR_CAP);
 
   /* Dim-veil + scene choreography (absolute scroll space, rebuilt on
      resize): hero field darkens while the manifesto covers it, the white

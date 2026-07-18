@@ -1,5 +1,11 @@
 # ENGINEERING_LOG
 
+## 2026-07-18 (Repo publish prep: untrack .gstack tool state)
+- Added `.gstack/` to .gitignore and untracked the directory (browse logs,
+  QA reports, terminal/daemon state are local tool artifacts, not source).
+- First push to the new GitHub remote git@github.com:cs-keni/substrate.git;
+  Vercel will deploy from it (plain Vite defaults: `npm run build` → dist/).
+
 ## 2026-07-17 (Phase 15: mobile polish — /qa-only findings + 375px sweep)
 - QA report (94/100) at .gstack/qa-reports/qa-report-localhost-5183-2026-07-17.md;
   all findings were mobile. Fixed five:

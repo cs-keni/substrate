@@ -1,5 +1,14 @@
 # ENGINEERING_LOG
 
+## 2026-07-18 (Ship: live URL, README, OG/Twitter social card)
+- Live at https://substrate-theta.vercel.app/ (Vercel, auto-deploys main).
+- README.md created with live URL, stack, dev commands.
+- index.html: og:url, og:image (+dimensions), twitter:card/title/description/
+  image. Card is a real 1200x630 hero capture from the live site (browse
+  daemon, nav pill/hamburger/scroll-cue hidden for the shot), ffmpeg'd
+  PNG→JPEG 792 kB→98 kB at public/og.jpg.
+- PHASES.md: deploy checkbox done with URL.
+
 ## 2026-07-18 (Repo publish prep: untrack .gstack tool state)
 - Added `.gstack/` to .gitignore and untracked the directory (browse logs,
   QA reports, terminal/daemon state are local tool artifacts, not source).

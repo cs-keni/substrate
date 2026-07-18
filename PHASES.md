@@ -171,6 +171,6 @@ postprocessing over the WebGL scene.
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
 - [ ] Simplified world geometry on small viewports
-- [ ] Deploy target (static host) + share link
+- [x] Deploy target (static host) + share link — https://substrate-theta.vercel.app/ (Vercel, auto-deploys from main)
 - [ ] Scroll progress affordance (volt rail or nav numbers filling in)
 - [ ] SR text alternative for journey HUD data + visible focus states

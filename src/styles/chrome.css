@@ -85,13 +85,10 @@
   font-size: 0.95rem;
   letter-spacing: -0.01em;
   border-radius: var(--radius-pill);
+  /* transform intentionally NOT transitioned: magnetic.ts owns it via GSAP
+     (see the footer-wordmark lesson — never share transform with a tween) */
   transition: background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
-}
-
-.nav-pill:hover {
-  transform: translateY(-2px);
+    color var(--dur-fast) var(--ease-out);
 }
 
 .nav-mark path {

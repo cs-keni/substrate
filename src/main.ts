@@ -11,6 +11,7 @@ import { initScroll } from './app/scroll';
 import { runPreloader } from './app/preloader';
 import { initNav } from './app/nav';
 import { initCursor } from './app/cursor';
+import { initMagnetic } from './app/magnetic';
 import { initAnchors } from './app/anchors';
 import { initHero } from './app/sections/hero';
 import { initManifesto } from './app/sections/manifesto';
@@ -22,6 +23,7 @@ import { initFooter } from './app/sections/footer';
 
 initScroll();
 initCursor();
+initMagnetic();
 initAnchors();
 initManifesto();
 initJourney();

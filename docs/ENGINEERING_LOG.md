@@ -1,5 +1,19 @@
 # ENGINEERING_LOG
 
+## 2026-07-18 (Magnetic nav pills)
+- New src/app/magnetic.ts: proximity field (48px past the pill edge) pulls
+  each .nav-pill toward the pointer (x*0.18, y*0.26, minus the old 2px
+  hover lift), elastic.out(1, 0.45) release on exit. Fine-pointer only,
+  honors prefers-reduced-motion. overwrite:'auto' on both tweens so
+  attract/release never fight.
+- Feedback guard: resting center = rect center minus current gsap x/y,
+  otherwise the magnet chases its own translation.
+- chrome.css: removed .nav-pill:hover transform and transform from the
+  pill's transition list — GSAP owns pill transform exclusively (same
+  rule that fixed the footer wordmark).
+- Verified headless: pointer at (+20,+8) from center → matrix(...,3.6,0.08)
+  (0.18*20=3.6, 0.26*8-2=0.08), exit → identity. Console clean.
+
 ## 2026-07-18 (A11y: SR journey narrative, skip link, focus management)
 - Journey section: visually-hidden waypoint list mirroring the six HUD
   anchors (turbine, solar, collector, switchyard, hall, racks) — the HUD

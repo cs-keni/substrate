@@ -169,8 +169,8 @@ postprocessing over the WebGL scene.
       unchanged (vw guards only bite below ~1000px)
 
 ## Later (nice-to-haves)
-- [ ] Magnetic hover on nav pills
+- [x] Magnetic hover on nav pills
 - [ ] Simplified world geometry on small viewports
 - [x] Deploy target (static host) + share link — https://substrate-theta.vercel.app/ (Vercel, auto-deploys from main)
 - [ ] Scroll progress affordance (volt rail or nav numbers filling in)
-- [ ] SR text alternative for journey HUD data + visible focus states
+- [x] SR text alternative for journey HUD data + visible focus states — 3eaa98e

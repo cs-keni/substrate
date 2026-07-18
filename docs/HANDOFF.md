@@ -12,8 +12,14 @@ west fence has a real gate (`fenceRect` gates param) where the road enters.
 Verified headless: thesis samples rgb(3,3,3) vs hero rgb(0–5) (grain), wind
 farm + campus screenshots clean, build green.
 
-Scenery/density passes (ponds/grass/hills, site build-out) are scoped as
-options pending Kenny's pick — see PHASES.md Phase 14 once chosen.
+Phase 14 (living world) shipped on top of it — Kenny picked all four passes:
+ponds/creeks/meadows/rim-hills, plan-symbol tree stands + birds, parcel
+grid + farmsteads, and a footprint density pass (fuller archetypes, parking
+aprons, access roads, inter-site road network, hamlets). New module:
+src/gl/world/nature.ts; its FARM_YARDS/FARM_DRIVEWAYS consts feed world.ts
+FLAT_ZONES/FLAT_ROUTES so ground flattening and nature keep-outs share one
+source of truth. Nature placement uses `isOpen(h)`: the flat mask is exactly
+0 on built ground, so |h|>0.001 keeps scatter off roads/zones/yards.
 
 ## Previous state (2026-07-16)
 Phases 0–10 complete. Full scroll experience works end-to-end at

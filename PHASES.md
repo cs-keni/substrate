@@ -140,11 +140,20 @@ postprocessing over the WebGL scene.
       gate posts)
 - [x] tsc + build green; pixel-sampled + screenshot verification round 4
 
-## Phase 14 — Living World (scope pending Kenny's option pick)
-- [ ] Land pass: ponds, creeks, grass meadows, taller peripheral hills
-- [ ] Life pass: drafting-style tree stands, circling birds
-- [ ] Context pass: field parcels, farmsteads near the corridor
-- [ ] Footprint site density: build out the 12 interior sites
+## Phase 14 — Living World (Kenny picked all four passes, 2026-07-17)
+- [x] Land pass: ponds seated in fbm lowland minima (flat water discs the
+      relief clips into shorelines + drafted rim rings), gradient-descent
+      dry creeks, instanced grass meadows, peripheral rim-hill amplification
+- [x] Life pass: plan-symbol tree stands (instanced trunk+disc canopy,
+      merged ink outline rings), four birds orbiting thermals (ticked)
+- [x] Context pass: noise-masked surveyed parcel grid in the ground shader,
+      two farmsteads (barn/gable roof/silo, water tower) with driveways,
+      gated yard integration via FARM_YARDS/FARM_DRIVEWAYS flats
+- [x] Footprint density: 3rd hall + skids (campus), 5 turbines (wind),
+      7 rows + O&M (solar), pipe rack + tanks (thermal), trailers + 5 piles
+      (construction), per-site parking aprons + parked cars + drawn access
+      roads, 12-link inter-site road network, hamlets along the roads
+- [x] tsc + build green; headless screenshot verification
 
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills

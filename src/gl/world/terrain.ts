@@ -156,10 +156,10 @@ export function createTerrain(): TerrainScene {
     new THREE.Mesh(new THREE.CylinderGeometry(0.5 * s, 0.5 * s, 0.9 * s, 12), whiteMat());
 
   const archetypes: Record<string, (g: THREE.Group, s: number, seed: number) => void> = {
-    campus: (g, s) => {
-      for (let i = 0; i < 2; i++) {
+    campus: (g, s, seed) => {
+      for (let i = 0; i < 3; i++) {
         const hall = outlined(new THREE.BoxGeometry(3.8 * s, 0.9 * s, 1.4 * s), whiteMat(), 0.4);
-        hall.position.set(0.6 * s, 0.45 * s, (i - 0.5) * 2.1 * s);
+        hall.position.set(0.6 * s, 0.45 * s, (i - 1) * 2.1 * s);
         g.add(hall);
       }
       const sub = outlined(new THREE.BoxGeometry(1.1 * s, 0.6 * s, 1.0 * s), whiteMat(), 0.4);
@@ -168,9 +168,19 @@ export function createTerrain(): TerrainScene {
       const tank = tankMesh(s);
       tank.position.set(-2.2 * s, 0.45 * s, -1.5 * s);
       g.add(tank);
+      // aux row: cooling skids along the halls' west face
+      for (let i = 0; i < 3; i++) {
+        const skid = new THREE.Mesh(
+          new THREE.BoxGeometry(0.5 * s, 0.35 * s, 0.5 * s),
+          new THREE.MeshLambertMaterial({ color: '#cfcdc4' }),
+        );
+        skid.position.set(-1.3 * s, 0.18 * s, (i - 1) * 1.1 * s + hash21(seed, i) * 0.3 * s);
+        g.add(skid);
+      }
     },
     wind: (g, s, seed) => {
-      const spots: Array<[number, number]> = [[-1.9, -1.4], [0.3, 1.7], [2.0, -0.7]];
+      const spots: Array<[number, number]> =
+        [[-1.9, -1.4], [0.3, 1.7], [2.0, -0.7], [-0.6, -2.7], [2.8, 1.6]];
       spots.forEach(([tx, tz], i) => {
         const tower = new THREE.Mesh(
           new THREE.CylinderGeometry(0.05 * s, 0.09 * s, 2.4 * s, 6),
@@ -200,14 +210,19 @@ export function createTerrain(): TerrainScene {
       const rowGeo = new THREE.BoxGeometry(3.0 * s, 0.09 * s, 0.5 * s);
       rowGeo.rotateX(-0.32);
       const rowMat = new THREE.MeshLambertMaterial({ color: '#c9c7be' });
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 7; i++) {
         const row = new THREE.Mesh(rowGeo, rowMat);
-        row.position.set(0.4 * s, 0.3 * s, (i - 1.5) * 1.05 * s);
+        row.position.set(0.4 * s, 0.3 * s, (i - 3) * 1.05 * s);
         g.add(row);
       }
-      const inverter = outlined(new THREE.BoxGeometry(0.9 * s, 0.55 * s, 0.8 * s), whiteMat(), 0.4);
-      inverter.position.set(-2.3 * s, 0.28 * s, 0);
-      g.add(inverter);
+      for (let i = 0; i < 2; i++) {
+        const inverter = outlined(new THREE.BoxGeometry(0.9 * s, 0.55 * s, 0.8 * s), whiteMat(), 0.4);
+        inverter.position.set(-2.3 * s, 0.28 * s, (i - 0.5) * 2.4 * s);
+        g.add(inverter);
+      }
+      const hut = outlined(new THREE.BoxGeometry(1.0 * s, 0.45 * s, 0.7 * s), whiteMat(), 0.4);
+      hut.position.set(-2.5 * s, 0.22 * s, -3.2 * s);
+      g.add(hut);
     },
     thermal: (g, s) => {
       // offset so the site spike at local (0,0) doesn't pierce the roof
@@ -225,6 +240,17 @@ export function createTerrain(): TerrainScene {
       const tank = tankMesh(s);
       tank.position.set(-1.8 * s, 0.45 * s, 1.3 * s);
       g.add(tank);
+      const tank2 = tankMesh(s * 0.7);
+      tank2.position.set(-2.6 * s, 0.32 * s, 0.4 * s);
+      g.add(tank2);
+      // pipe rack tying the stacks to the block
+      const rack = new THREE.Mesh(
+        new THREE.BoxGeometry(1.8 * s, 0.08 * s, 0.3 * s),
+        new THREE.MeshLambertMaterial({ color: '#cfcdc4' }),
+      );
+      rack.position.set(0.1 * s, 0.75 * s, -0.1 * s);
+      rack.rotation.y = 0.5;
+      g.add(rack);
     },
     construction: (g, s, seed) => {
       // ghost frame: the future hall, translucent, edges only firm
@@ -256,8 +282,19 @@ export function createTerrain(): TerrainScene {
       tip.position.set(-1.2 * s, 2.9 * s, -0.6 * s);
       g.add(tip);
 
+      // site offices: trailer pair by the laydown
+      for (let i = 0; i < 2; i++) {
+        const trailer = outlined(
+          new THREE.BoxGeometry(1.1 * s, 0.4 * s, 0.55 * s),
+          whiteMat(),
+          0.35,
+        );
+        trailer.position.set((2.1 + i * 0.2) * s, 0.2 * s, (-1.2 + i * 0.75) * s);
+        g.add(trailer);
+      }
+
       // laydown: material piles
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 5; i++) {
         const pile = new THREE.Mesh(
           new THREE.BoxGeometry(0.7 * s, 0.22 * s, 0.5 * s),
           new THREE.MeshLambertMaterial({ color: '#cfcdc4' }),
@@ -286,6 +323,30 @@ export function createTerrain(): TerrainScene {
 
     const cluster = new THREE.Group();
     archetypes[kind](cluster, s, seed);
+
+    // parking / laydown apron with a couple of parked vehicles — the small
+    // human-scale evidence that someone runs this place
+    const apron = new THREE.Mesh(
+      new THREE.BoxGeometry(1.9 * s, 0.06 * s, 1.3 * s),
+      new THREE.MeshLambertMaterial({ color: '#e6e4db' }),
+    );
+    apron.position.set(2.6 * s, 0.03 * s, 2.2 * s);
+    cluster.add(apron);
+    const nCars = 2 + Math.floor(hash21(seed * 1.7, 8.1) * 2);
+    for (let i = 0; i < nCars; i++) {
+      const car = new THREE.Mesh(
+        new THREE.BoxGeometry(0.42 * s, 0.16 * s, 0.2 * s),
+        new THREE.MeshLambertMaterial({ color: '#cfcdc4' }),
+      );
+      car.position.set(
+        (2.2 + hash21(seed, i * 4.3) * 0.9) * s,
+        0.11 * s,
+        (1.8 + i * 0.35) * s,
+      );
+      car.rotation.y = hash21(i * 2.9, seed) * 0.4;
+      cluster.add(car);
+    }
+
     cluster.position.set(x, base - 0.2, z);
     cluster.rotation.y = hash21(seed * 3.7, 1.9) * Math.PI * 2;
     g.add(cluster);
@@ -297,6 +358,24 @@ export function createTerrain(): TerrainScene {
       [x + half, z + half], [x - half, z + half], [x - half, z - half],
     ].map(([px, pz]) => new THREE.Vector3(px, terrainHeight(px, pz) + 0.5, pz));
     g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(corners), padLineMat));
+
+    // drawn access road: double line leaving the pad toward the site's
+    // network link, draped on the terrain
+    const roadA = hash21(seed * 5.1, 2.7) * Math.PI * 2;
+    const dirX = Math.cos(roadA);
+    const dirZ = Math.sin(roadA);
+    const perpX = -dirZ * 0.45 * s;
+    const perpZ = dirX * 0.45 * s;
+    for (const side of [-1, 1]) {
+      const pts: THREE.Vector3[] = [];
+      for (let d = half * 0.9; d <= half * 0.9 + 9 * s; d += 2.2) {
+        const bend = Math.sin(d * 0.14 + seed) * 1.1;
+        const px = x + dirX * d - dirZ * bend + perpX * side;
+        const pz = z + dirZ * d + dirX * bend + perpZ * side;
+        pts.push(new THREE.Vector3(px, terrainHeight(px, pz) + 0.42, pz));
+      }
+      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), padLineMat));
+    }
 
     return g;
   };
@@ -329,6 +408,65 @@ export function createTerrain(): TerrainScene {
       status,
     };
   });
+
+  /* Inter-site road network + hamlets: thin draped lines linking neighbour
+     sites, with a few tiny settlements along them — the interior reads as
+     inhabited country the sites were built INTO, not markers on a void.
+     Links are indices into siteDefs; midpoints get noise jitter so nothing
+     runs surveyor-straight. */
+  const links: Array<[number, number]> = [
+    [0, 1], [1, 3], [0, 10], [9, 0], [3, 11], [11, 4],
+    [4, 5], [5, 6], [5, 8], [2, 7], [2, 4], [7, 5],
+  ];
+  const netMat = new THREE.LineBasicMaterial({
+    color: '#0e0f0c',
+    transparent: true,
+    opacity: 0.16,
+  });
+  // smooth 1D value noise off hash21 — enough wander for a country road
+  const vnoiseLike = (t: number): number => {
+    const i = Math.floor(t);
+    const f = t - i;
+    const u = f * f * (3 - 2 * f);
+    return hash21(i, 17.3) + (hash21(i + 1, 17.3) - hash21(i, 17.3)) * u;
+  };
+  const hamletSpots: Array<[number, number, number]> = [];
+  links.forEach(([ai, bi], li) => {
+    const [, , ax, az] = siteDefs[ai];
+    const [, , bx, bz] = siteDefs[bi];
+    const len = Math.hypot(bx - ax, bz - az);
+    const steps = Math.max(8, Math.round(len / 5));
+    const nx = -(bz - az) / len;
+    const nz = (bx - ax) / len;
+    const pts: THREE.Vector3[] = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      // ease the jitter to zero at both ends so roads meet their sites
+      const sway = Math.sin(t * Math.PI) * (vnoiseLike(li * 13.7 + t * 4.1) - 0.5) * 14;
+      const px = ax + (bx - ax) * t + nx * sway;
+      const pz = az + (bz - az) * t + nz * sway;
+      pts.push(new THREE.Vector3(px, terrainHeight(px, pz) + 0.35, pz));
+      if (i === Math.floor(steps / 2) && li % 3 === 0) {
+        hamletSpots.push([px + nx * 5, pz + nz * 5, li]);
+      }
+    }
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), netMat));
+  });
+
+  // hamlets: two-to-four tiny buildings pulled just off the road
+  const hamletMat = new THREE.MeshLambertMaterial({ color: '#eceae2' });
+  for (const [hx, hz, seed] of hamletSpots) {
+    const n = 2 + Math.floor(hash21(seed * 7.9, 3.3) * 3);
+    for (let i = 0; i < n; i++) {
+      const bx = hx + (hash21(seed, i * 5.7) - 0.5) * 5;
+      const bz = hz + (hash21(i * 3.1, seed) - 0.5) * 5;
+      const bs = 0.5 + hash21(bx, bz) * 0.5;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(bs, bs * 0.55, bs * 0.7), hamletMat);
+      b.position.set(bx, terrainHeight(bx, bz) + bs * 0.22, bz);
+      b.rotation.y = hash21(seed * 1.3, i) * Math.PI;
+      scene.add(b);
+    }
+  }
 
   // dashed boundary loops draped on the terrain: the three grid
   // interconnections the caption promises — the map explains itself

@@ -6,6 +6,7 @@ import { buildTransmission, tickTransmission } from './transmission';
 import { buildCompute, tickCompute } from './compute';
 import { NOISE_GLSL, fbm } from './noise';
 import { road, fenceRect, scrub } from './groundworks';
+import { buildNature, FARM_YARDS, FARM_DRIVEWAYS } from './nature';
 
 /**
  * The isometric world scene: paper-white ground with a dot-matrix shader,
@@ -73,8 +74,9 @@ const FLAT_ZONES: Array<[number, number, number]> = [
   [0, 0, 34], // switchyard
   [104, -26, 52], // compute campus
   [-84, 40, 24], // collector yard / corridor head
+  ...FARM_YARDS, // farmstead yards (nature.ts)
 ];
-const FLAT_ROUTES = [SERVICE_ROAD, WIND_SPUR, SOLAR_ROAD, CAMPUS_ENTRY];
+const FLAT_ROUTES = [SERVICE_ROAD, WIND_SPUR, SOLAR_ROAD, CAMPUS_ENTRY, ...FARM_DRIVEWAYS];
 
 function distToSegment(px: number, pz: number, a: THREE.Vector2, b: THREE.Vector2): number {
   const abx = b.x - a.x;
@@ -98,7 +100,11 @@ export function worldGroundHeight(x: number, z: number): number {
   }
   const t = Math.min(1, d / 36);
   const mask = t * t * (3 - 2 * t); // smoothstep
-  return mask * (fbm(x * 0.014, z * 0.014) - 0.45) * 16;
+  const rolling = mask * (fbm(x * 0.014, z * 0.014) - 0.45) * 16;
+  // beyond the built world (nothing sits past ~155 elliptical radius) the
+  // land amplifies into real hills — a horizon, not an infinite plain
+  const rim = Math.min(1, Math.max(0, (Math.hypot(x * 0.85, z) - 155) / 110));
+  return rolling * (1 + 1.15 * rim * rim);
 }
 
 /* ---- road traffic ---- */
@@ -186,6 +192,20 @@ function dotGround(): THREE.Mesh {
         float aa = fwidth(lv) * 1.4;
         float contour = 1.0 - smoothstep(aa, aa * 2.2, band);
         col = mix(col, uInk, contour * 0.05);
+
+        // surveyed field parcels: a faintly rotated section grid that only
+        // appears in noise-masked patches — farmland the corridor crosses
+        float pn = vnoise(vWorld * 0.008 + 31.7);
+        float pmask = smoothstep(0.5, 0.56, pn) * (1.0 - smoothstep(0.7, 0.76, pn));
+        vec2 pw = mat2(0.988, -0.156, 0.156, 0.988) * vWorld;
+        vec2 pf = fract(pw / vec2(24.0, 30.0));
+        vec2 pb = min(pf, 1.0 - pf);
+        vec2 aaP = fwidth(pw) / vec2(24.0, 30.0) * 1.6;
+        float lp = max(
+          1.0 - smoothstep(aaP.x, aaP.x * 2.2, pb.x),
+          1.0 - smoothstep(aaP.y, aaP.y * 2.2, pb.y)
+        );
+        col = mix(col, uInk, lp * pmask * 0.05);
 
         // dot matrix in world units
         vec2 cell = fract(vWorld / 2.2) - 0.5;
@@ -317,8 +337,13 @@ export function createWorld(): WorldScene {
     ...SERVICE_ROAD.map((p): [number, number, number] => [p.x, p.y, 6]),
     [-114, 38, 5], [-124, 24, 5], [-132, 11, 5], [-139, 1, 5],
     [-125.4, 31, 5], [-123, 43.5, 5], [87, -12, 6],
+    ...FARM_YARDS, [-58, 47, 5], [58, 2, 5], // farm yards + driveways
   ];
   scene.add(scrub(-160, -50, 150, 68, 620, keepOut, worldGroundHeight));
+
+  // the living land: ponds, creeks, meadows, tree stands, birds, farmsteads
+  const nature = buildNature(worldGroundHeight, keepOut);
+  scene.add(nature.group);
 
   // real shadows everywhere: everything solid casts; lambert surfaces
   // (pads, roads, walls, roofs) also receive so shadows don't vanish
@@ -359,6 +384,7 @@ export function createWorld(): WorldScene {
     tickGeneration(dt);
     tickTransmission(dt);
     tickCompute(elapsed);
+    nature.tick(elapsed);
     for (const v of vehicles) {
       v.t = (v.t + dt * v.speed) % 1;
       const pos = v.curve.getPointAt(v.t);

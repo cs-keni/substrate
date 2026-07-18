@@ -1,5 +1,35 @@
 # ENGINEERING_LOG
 
+## 2026-07-17 (Phase 14: living world — all four passes, Kenny's pick)
+- New src/gl/world/nature.ts: ponds (grid-scanned fbm lowland minima; flat
+  water discs at min+1.0 that the surrounding relief clips into organic
+  shorelines, plus merged drafted rim rings), dry creeks (numeric gradient
+  descent from high ground into the top-3 ponds, meander term, stops at
+  flats), grass meadows (~instanced cones, own vnoise cluster field, kept
+  out of flats/ponds/keep-outs), plan-symbol tree stands (instanced trunks
+  + disc canopies + one merged LineSegments of ink outline rings), four
+  birds orbiting three thermal centers (ticked from world.tick), and two
+  farmsteads (barn + ExtrudeGeometry gable roof, silo or 4-leg water tower,
+  yard pad, parked truck) with road() driveways.
+- world.ts integration: FARM_YARDS/FARM_DRIVEWAYS exported from nature.ts
+  feed FLAT_ZONES/FLAT_ROUTES (single source for ground flattening), rim
+  hills (worldGroundHeight amplifies 1+1.15·rim² beyond elliptical radius
+  155 — nothing built sits past it), parcel-grid lines in the dotGround
+  fragment shader (rotated grid, vnoise band mask, fwidth AA), nature keep
+  -outs appended to the scrub list. The `isOpen(h)` trick: the flat mask
+  returns exactly 0 on roads/zones/yards, so |h|>0.001 keeps ALL nature off
+  built ground for free.
+- terrain.ts density: campus 3 halls + cooling skids, wind 5 turbines,
+  solar 7 rows + 2 inverters + hut, thermal pipe rack + second tank,
+  construction site-office trailers + 5 piles; every site gains a parking
+  apron with 2-3 parked cars and a drawn double-line access road; new
+  12-link inter-site road network (draped, vnoiseLike sway eased to zero at
+  endpoints) with hamlets (2-4 tiny boxes) on every third link.
+- tsc + build green (stage chunk 575 kB / 152 kB gzip, +25 kB for all four
+  passes). Headless screenshots: transmission beat shows farm F1 + tree
+  stands + truck traffic; F2 water tower + driveway reads; Halvorsen Flats
+  shows crane + trailers + apron + hamlet + road network. No console errors.
+
 ## 2026-07-17 (round-4 review: real-life logic pass)
 - Root-caused the "thesis looks gray next to the intro" report: the
   EffectComposer chain has no OutputPass, so GL renders linear-unencoded —

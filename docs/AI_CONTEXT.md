@@ -72,6 +72,14 @@ src/
   the crushed GL black via `--ink-deep: #020202` (tokens.css) — used for
   `--bg` (dark), `.gl-dim`, preloader, menu overlay. `--ink` (#0e0f0c)
   remains the foreground/text/edge-line color only.
+- Nature (src/gl/world/nature.ts) is deterministic: ponds/trees/meadows are
+  placed by scanning the SAME worldGroundHeight/vnoise fields at build time,
+  so reloads never reshuffle. Ponds are flat discs at (local min + 1.0) —
+  the relief clips them into shorelines; anything new placed on open land
+  must respect `isOpen(h)` (|h| > 0.001 ⇒ off all built flats) and the
+  keep-out circles. FARM_YARDS/FARM_DRIVEWAYS exported from nature.ts are
+  folded into world.ts FLAT_ZONES/FLAT_ROUTES — add new built-on-open-land
+  features the same way, never as hardcoded coordinates in two places.
 - World-scene traffic realism rules: roads never overlap a structure
   footprint (≥3 units clearance from turbine masts to any driven road) and
   never cross a fence line except at a `fenceRect` gate (gates param cuts

@@ -101,7 +101,7 @@ svg {
   position: fixed;
   inset: 0;
   z-index: var(--z-dim);
-  background: var(--ink);
+  background: var(--ink-deep);
   opacity: 0;
   pointer-events: none;
 }

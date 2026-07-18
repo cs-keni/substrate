@@ -1,6 +1,21 @@
 # HANDOFF
 
-## Current state (2026-07-16)
+## Current state (2026-07-17)
+Phase 13 (round-4 review fixes) shipped: intro and thesis backgrounds now
+share one true black (`--ink-deep` #020202 matches the composer's crushed GL
+black — see AI_CONTEXT "renders DARKER" decision before touching any dark
+color), trucks dissolve in/out at route ends instead of popping, and roads
+no longer phase through structures: the wind spur threads between turbine
+masts (one turbine moved), the service road skirts the switchyard fence
+north at z=14, the solar leg runs outside the solar fence, and the campus
+west fence has a real gate (`fenceRect` gates param) where the road enters.
+Verified headless: thesis samples rgb(3,3,3) vs hero rgb(0–5) (grain), wind
+farm + campus screenshots clean, build green.
+
+Scenery/density passes (ponds/grass/hills, site build-out) are scoped as
+options pending Kenny's pick — see PHASES.md Phase 14 once chosen.
+
+## Previous state (2026-07-16)
 Phases 0–10 complete. Full scroll experience works end-to-end at
 localhost:5183 (`npm run dev`). Three GL scenes (hero energy field,
 isometric world, footprint terrain) with a shared grade pass; scroll infra

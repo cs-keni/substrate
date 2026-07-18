@@ -66,8 +66,22 @@ export function road(route: THREE.Vector2[], width = 1.6, y = 0.03): THREE.Group
   return g;
 }
 
-/** Rectangular perimeter fence (posts + top line) around (cx, cz). */
-export function fenceRect(cx: number, cz: number, w: number, d: number): THREE.Group {
+/** [edge 0-3 (S,E,N,W order from the SW corner), distance along edge, width] */
+export type FenceGate = [number, number, number];
+
+/**
+ * Rectangular perimeter fence (posts + top line) around (cx, cz).
+ * `gates` cut real openings — rail and posts stop at the gap and a pair of
+ * taller gate posts frame it, so a road can cross the perimeter without
+ * anything phasing through the fence line.
+ */
+export function fenceRect(
+  cx: number,
+  cz: number,
+  w: number,
+  d: number,
+  gates: FenceGate[] = [],
+): THREE.Group {
   const g = new THREE.Group();
   const hw = w / 2;
   const hd = d / 2;
@@ -84,27 +98,50 @@ export function fenceRect(cx: number, cz: number, w: number, d: number): THREE.G
     transparent: true,
     opacity: 0.28,
   });
-  const railPts = corners.map((c) => new THREE.Vector3(c.x, 0.85, c.y));
-  g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(railPts), lineMat));
+  const railPts: THREE.Vector3[] = [];
+  const rail = (a: THREE.Vector2, b: THREE.Vector2) => {
+    railPts.push(new THREE.Vector3(a.x, 0.85, a.y), new THREE.Vector3(b.x, 0.85, b.y));
+  };
 
-  // posts every ~5 units
   const postGeo = new THREE.BoxGeometry(0.07, 0.85, 0.07);
+  const gatePostGeo = new THREE.BoxGeometry(0.14, 1.15, 0.14);
   const posts: THREE.Matrix4[] = [];
+  const gatePosts: THREE.Matrix4[] = [];
+  const lerp = (a: THREE.Vector2, b: THREE.Vector2, t: number) =>
+    new THREE.Vector2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
+
   for (let s = 0; s < 4; s++) {
     const a = corners[s];
     const b = corners[s + 1];
     const len = a.distanceTo(b);
+    const gate = gates.find(([edge]) => edge === s);
+    // gap window in edge-t, empty when no gate
+    const g0 = gate ? Math.max(0, (gate[1] - gate[2] / 2) / len) : 1;
+    const g1 = gate ? Math.min(1, (gate[1] + gate[2] / 2) / len) : 1;
+
+    if (gate) {
+      rail(a, lerp(a, b, g0));
+      rail(lerp(a, b, g1), b);
+      for (const t of [g0, g1]) {
+        const p = lerp(a, b, t);
+        gatePosts.push(new THREE.Matrix4().setPosition(p.x, 0.57, p.y));
+      }
+    } else {
+      rail(a, b);
+    }
+
+    // posts every ~5 units, skipping the gate opening
     const count = Math.max(2, Math.round(len / 5));
     for (let i = 0; i <= count; i++) {
       const t = i / count;
-      const m = new THREE.Matrix4().setPosition(
-        a.x + (b.x - a.x) * t,
-        0.42,
-        a.y + (b.y - a.y) * t,
-      );
-      posts.push(m);
+      if (gate && t > g0 && t < g1) continue;
+      const p = lerp(a, b, t);
+      posts.push(new THREE.Matrix4().setPosition(p.x, 0.42, p.y));
     }
   }
+
+  g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(railPts), lineMat));
+
   const inst = new THREE.InstancedMesh(
     postGeo,
     new THREE.MeshLambertMaterial({ color: '#b5b3a8' }),
@@ -112,6 +149,16 @@ export function fenceRect(cx: number, cz: number, w: number, d: number): THREE.G
   );
   posts.forEach((m, i) => inst.setMatrixAt(i, m));
   g.add(inst);
+
+  if (gatePosts.length) {
+    const gateInst = new THREE.InstancedMesh(
+      gatePostGeo,
+      new THREE.MeshLambertMaterial({ color: '#b5b3a8' }),
+      gatePosts.length,
+    );
+    gatePosts.forEach((m, i) => gateInst.setMatrixAt(i, m));
+    g.add(gateInst);
+  }
   return g;
 }
 

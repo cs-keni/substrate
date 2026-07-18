@@ -63,6 +63,22 @@ src/
   flat inside FLAT_ZONES + along the road route consts. Anything placed on
   open land must call it for its y (scrub already does). Never place built
   structures outside the flat mask without flattening there first.
+- The GL pipeline renders DARKER than its input colors: the EffectComposer
+  chain (RenderPass → grade ShaderPass) has no OutputPass, so linear values
+  hit the screen without sRGB re-encoding. Dark colors crush hard — the
+  field scene's `#0e0f0c` background displays as ~`#010101`. This is now a
+  LOOK, not a bug: all approved scenes were art-directed under it. Do NOT
+  add an OutputPass (it would regrade every scene). CSS dark surfaces match
+  the crushed GL black via `--ink-deep: #020202` (tokens.css) — used for
+  `--bg` (dark), `.gl-dim`, preloader, menu overlay. `--ink` (#0e0f0c)
+  remains the foreground/text/edge-line color only.
+- World-scene traffic realism rules: roads never overlap a structure
+  footprint (≥3 units clearance from turbine masts to any driven road) and
+  never cross a fence line except at a `fenceRect` gate (gates param cuts
+  the rail + posts and frames the gap with taller gate posts —
+  groundworks.ts). Trucks dissolve in/out over the first/last 6% of their
+  route (per-vehicle materials; castShadow toggled at the 0.55 fade point
+  because shadow maps ignore opacity).
 
 ## Rules
 - Never copy Hut 8 copy/branding/assets. Technique replication only.

@@ -143,8 +143,11 @@ export function buildGeneration(): THREE.Group {
   const zone = new THREE.Group();
 
   // wind farm — staggered arc; [x, z, scale]
+  // NOTE: the wind-spur service road (world.ts WIND_SPUR) runs through this
+  // zone at local (-14,-7) → (-21,-17) → (-26,-26); keep every tower ≥3 units
+  // clear of it or trucks drive straight through the mast
   const turbinePos: Array<[number, number, number]> = [
-    [-16, -10, 1],
+    [-19, -7.5, 1],
     [-8, -18, 0.92],
     [2, -13, 1.05],
     [-24, -2, 0.9],
@@ -174,7 +177,7 @@ export function buildGeneration(): THREE.Group {
   // turbine spur tracks off the wind-farm road (built in world.ts); the
   // spine passes through zone-local (-14,-7) → (-21,-17) → (-26,-26)
   const v2 = (x: number, z: number) => new THREE.Vector2(x, z);
-  zone.add(road([v2(-14, -7), v2(-16, -10)], 0.9));
+  zone.add(road([v2(-14, -7), v2(-19, -7.5)], 0.9));
   zone.add(road([v2(-21, -17), v2(-14, -18), v2(-8, -18)], 0.9));
   zone.add(road([v2(-6, 6), v2(-6, -4), v2(-2, -9), v2(2, -13), v2(6, -22)], 0.9));
   zone.add(road([v2(-14, -7), v2(-19, -4), v2(-24, -2)], 0.9));

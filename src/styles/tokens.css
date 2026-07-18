@@ -3,6 +3,10 @@
   --paper: #f4f3ef;
   --paper-dim: #e9e7e0;
   --ink: #0e0f0c;
+  /* dark SURFACES only — matches the GL pipeline's rendered black (~#010101,
+     linear-crushed by the composer), so CSS slabs and canvas blacks are one
+     continuous black. --ink stays the foreground/text color on paper. */
+  --ink-deep: #020202;
   --ink-soft: #1a1b17;
   --ink-40: rgba(14, 15, 12, 0.4);
   --ink-15: rgba(14, 15, 12, 0.15);
@@ -14,7 +18,7 @@
   --paper-15: rgba(244, 243, 239, 0.15);
 
   /* semantic (dark default; flipped by [data-theme]) */
-  --bg: var(--ink);
+  --bg: var(--ink-deep);
   --fg: var(--paper);
   --fg-dim: var(--paper-40);
   --rule: var(--paper-15);

@@ -127,6 +127,25 @@ postprocessing over the WebGL scene.
       two in-build sites); deterministic hash layouts, spike-clearance kept
 - [x] tsc + build green; screenshot verification round 3
 
+## Phase 13 — Real-Life Logic (Kenny's fourth review, 2026-07-17)
+- [x] True-black match: `--ink-deep` #020202 token for all dark surfaces
+      (--bg, veil, preloader, menu) — matches the composer's crushed GL
+      black; thesis no longer reads gray next to the hero
+- [x] Trucks dissolve in/out over first/last 6% of route (per-vehicle
+      materials + castShadow gate) — no more mid-frame spawns
+- [x] No road passes through a structure: turbine moved off the wind spur
+      (≥3.8 clearance), service road reroutes around the switchyard fence,
+      solar leg runs outside the solar fence, campus west fence gains a
+      real gate (fenceRect gates param: split rail, skipped posts, taller
+      gate posts)
+- [x] tsc + build green; pixel-sampled + screenshot verification round 4
+
+## Phase 14 — Living World (scope pending Kenny's option pick)
+- [ ] Land pass: ponds, creeks, grass meadows, taller peripheral hills
+- [ ] Life pass: drafting-style tree stands, circling birds
+- [ ] Context pass: field parcels, farmsteads near the corridor
+- [ ] Footprint site density: build out the 12 interior sites
+
 ## Later (nice-to-haves)
 - [ ] Magnetic hover on nav pills
 - [ ] Simplified world geometry on small viewports

@@ -3,7 +3,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-preloader);
-  background: var(--ink);
+  background: var(--ink-deep);
   color: var(--paper);
   display: grid;
   place-items: center;
@@ -142,7 +142,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-menu);
-  background: var(--ink);
+  background: var(--ink-deep);
   color: var(--paper);
   clip-path: inset(0 0 100% 0);
   visibility: hidden;

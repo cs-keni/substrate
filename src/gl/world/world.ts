@@ -48,16 +48,22 @@ const VIEW_SIZE = 46; // half-height of ortho frustum at zoom 1
 const v2 = (x: number, z: number) => new THREE.Vector2(x, z);
 
 // service road shadowing the transmission corridor (offset south)
+// Roads never cross a fence line except at a gate, and never overlap a
+// structure footprint — trucks drive these, so any overlap reads as
+// phasing through solid objects. Switchyard: skirt north of the fence
+// (z=14 vs rail z=11). Campus: enter through the west-fence gate.
 const SERVICE_ROAD = [
   v2(-104.5, 49), v2(-86.5, 49), v2(-72.5, 35), v2(-44.5, 35),
-  v2(-28.5, 19), v2(-28.5, 11), v2(-6.5, 11), v2(1.5, 7),
-  v2(19.5, 6), v2(35.5, -7), v2(59.5, -7), v2(71.5, -19), v2(93.5, -19),
+  v2(-28.5, 19), v2(-28.5, 14), v2(16.5, 14), v2(19.5, 6),
+  v2(35.5, -7), v2(59.5, -7), v2(71.5, -19), v2(93.5, -19),
 ];
 const WIND_SPUR = [
   v2(-104.5, 49), v2(-114, 38), v2(-124, 24), v2(-132, 11), v2(-139, 1), v2(-144, -8),
 ];
+// solar leg stays OUTSIDE the solar-block fence (east rail at x=-126.2) —
+// a perimeter service lane, not a path through the fence line
 const SOLAR_ROAD = [
-  v2(-104.5, 49), v2(-115, 47.5), v2(-123, 43.5), v2(-126.5, 35), v2(-126.5, 25),
+  v2(-104.5, 49), v2(-115, 47.5), v2(-123, 43.5), v2(-125.4, 36), v2(-125.4, 26),
 ];
 const CAMPUS_ENTRY = [v2(93.5, -19), v2(87, -12), v2(80, -6)];
 
@@ -102,6 +108,8 @@ interface Vehicle {
   curve: THREE.CurvePath<THREE.Vector3>;
   t: number;
   speed: number; // in curve-t per second
+  mats: THREE.Material[];
+  bodies: THREE.Mesh[];
 }
 
 function roadCurve(route: THREE.Vector2[]): THREE.CurvePath<THREE.Vector3> {
@@ -268,11 +276,24 @@ export function createWorld(): WorldScene {
   const spawnTruck = (route: THREE.Vector2[], speed: number, t0: number, reverse = false) => {
     const g = truck();
     scene.add(g);
+    // trucks dissolve in/out at the route ends (each truck() has its own
+    // materials, so per-vehicle opacity is safe to mutate every tick)
+    const mats: THREE.Material[] = [];
+    const bodies: THREE.Mesh[] = [];
+    g.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        (obj.material as THREE.Material).transparent = true;
+        mats.push(obj.material as THREE.Material);
+        bodies.push(obj);
+      }
+    });
     vehicles.push({
       group: g,
       curve: roadCurve(reverse ? [...route].reverse() : route),
       t: t0,
       speed,
+      mats,
+      bodies,
     });
   };
   spawnTruck(SERVICE_ROAD, 0.016, 0.1);
@@ -281,10 +302,12 @@ export function createWorld(): WorldScene {
   spawnTruck(WIND_SPUR, 0.05, 0.7);
   spawnTruck(SOLAR_ROAD, 0.055, 0.2, true);
 
-  // perimeter fences: solar block, switchyard, campus
+  // perimeter fences: solar block, switchyard, campus. The campus west
+  // fence gets a gate where the service road crosses x=70 at z≈-17.5
+  // (edge 3 runs from the NW corner at z=-1 southward, so 16.5 along it)
   scene.add(fenceRect(-138.7, 36.4, 25, 23));
   scene.add(fenceRect(0, 0, 30, 22));
-  scene.add(fenceRect(104, -26, 68, 50));
+  scene.add(fenceRect(104, -26, 68, 50, [[3, 16.5, 4]]));
 
   // patchy scrub + rock clusters across the open land (kept off the roads,
   // pads, and structure aprons)
@@ -293,7 +316,7 @@ export function createWorld(): WorldScene {
     [-100, 26, 12], [-100, 36, 10],
     ...SERVICE_ROAD.map((p): [number, number, number] => [p.x, p.y, 6]),
     [-114, 38, 5], [-124, 24, 5], [-132, 11, 5], [-139, 1, 5],
-    [-126.5, 30, 5], [-123, 43.5, 5], [87, -12, 6],
+    [-125.4, 31, 5], [-123, 43.5, 5], [87, -12, 6],
   ];
   scene.add(scrub(-160, -50, 150, 68, 620, keepOut, worldGroundHeight));
 
@@ -342,6 +365,14 @@ export function createWorld(): WorldScene {
       const tan = v.curve.getTangentAt(v.t);
       v.group.position.set(pos.x, 0.02, pos.z);
       v.group.rotation.y = Math.atan2(-tan.z, tan.x);
+      // dissolve over the first/last 6% of the route so the loop wrap reads
+      // as departing/arriving, never popping into existence mid-frame
+      const edge = Math.min(v.t, 1 - v.t) / 0.06;
+      const f = Math.min(1, edge);
+      const fade = f * f * (3 - 2 * f);
+      for (const m of v.mats) m.opacity = fade;
+      // shadow maps ignore opacity — drop the shadow while mostly dissolved
+      for (const b of v.bodies) b.castShadow = fade > 0.55;
     }
   };
 

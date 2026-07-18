@@ -1,5 +1,30 @@
 # ENGINEERING_LOG
 
+## 2026-07-17 (round-4 review: real-life logic pass)
+- Root-caused the "thesis looks gray next to the intro" report: the
+  EffectComposer chain has no OutputPass, so GL renders linear-unencoded —
+  `#0e0f0c` displays as ~`#010101` (true black) while CSS slabs showed the
+  literal `#0e0f0c`. Kept the crushed look (all scenes art-directed under
+  it) and matched CSS instead: new `--ink-deep: #020202` surface token for
+  --bg dark, .gl-dim, preloader, menu overlay. Verified by pixel-sampling
+  headless screenshots: thesis rgb(3,3,3) uniform vs hero rgb(0–5).
+- Trucks no longer pop at the route-loop wrap: per-vehicle transparent
+  materials fade over the first/last 6% of curve-t (smoothstepped), with
+  castShadow gated at 0.55 since shadow maps ignore opacity (world.ts).
+- Roads no longer phase through structures ("cars run into windmills"):
+  turbine at zone-local (-16,-10) sat 0.09 units off the WIND_SPUR
+  centerline → moved to (-19,-7.5) (3.8 clearance) with its spur track
+  re-aimed (generation.ts). Service road rerouted around the switchyard
+  fence (was collinear with the north rail through two posts, then cut
+  through the yard) — now skirts at z=14. Solar leg moved outside the
+  solar-block fence (was 0.3 inside the east rail, grazing posts).
+  fenceRect gained a `gates` param (split rail via LineSegments, posts
+  skipped in the gap, taller gate-post pair); campus west fence gets a
+  4-unit gate where the road crosses at z≈-17.5 (groundworks.ts, world.ts).
+- Scrub keepOut updated for the moved solar lane. tsc + vite build green
+  (stage chunk 550 kB / 143 kB gzip). Phase 14 (living-world scenery)
+  scoped as options for Kenny.
+
 ## 2026-07-14
 - Researched hut8.com in headless browser: Nuxt 3 + GSAP
   (ScrollTrigger/ScrollSmoother/CustomEase) + Three.js r170 canvas in sticky

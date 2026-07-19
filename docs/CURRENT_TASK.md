@@ -1,10 +1,9 @@
 # CURRENT_TASK
 
-**Active:** none — Phases 13–15 (real-life logic, living world, mobile
-polish) complete and verified headless; QA health 94/100 with all mobile
-findings fixed. Awaiting Kenny's in-browser review. Recommended next:
-deploy target + git remote + /ship (site is share-ready), then OG/social
-card and the remaining nice-to-haves.
+**Active:** none — volt rail (scroll progress) shipped 2026-07-19; the
+backlog is now empty. Site is live at https://substrate-theta.vercel.app/.
+Open nice-to-haves: real-phone feel test (magnetic pills, quality tier,
+volt rail) and the parked ISSUE-005 download half.
 
 Owner: Claude Code (Fable 5)
-Updated: 2026-07-17
+Updated: 2026-07-19

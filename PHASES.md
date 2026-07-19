@@ -172,5 +172,5 @@ postprocessing over the WebGL scene.
 - [x] Magnetic hover on nav pills
 - [x] Simplified world geometry on small viewports — quality.ts tier (grid ×0.6, scatter ×0.45, shadows 1024, DPR 1.4)
 - [x] Deploy target (static host) + share link — https://substrate-theta.vercel.app/ (Vercel, auto-deploys from main)
-- [ ] Scroll progress affordance (volt rail or nav numbers filling in)
+- [x] Scroll progress affordance — volt rail on the left viewport edge (src/app/rail.ts), fill scrubs with total page scroll
 - [x] SR text alternative for journey HUD data + visible focus states — 3eaa98e

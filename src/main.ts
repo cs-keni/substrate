@@ -13,6 +13,7 @@ import { initNav } from './app/nav';
 import { initCursor } from './app/cursor';
 import { initMagnetic } from './app/magnetic';
 import { initAnchors } from './app/anchors';
+import { initRail } from './app/rail';
 import { initHero } from './app/sections/hero';
 import { initManifesto } from './app/sections/manifesto';
 import { initJourney } from './app/sections/journey';
@@ -39,4 +40,5 @@ const glReady = import('./gl/stage').then((m) => m.initStage());
 runPreloader(glReady).then(() => {
   initNav();
   initHero();
+  initRail();
 });

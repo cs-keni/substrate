@@ -61,6 +61,37 @@
   opacity: 0;
 }
 
+/* ============ SCROLL RAIL ============ */
+.scroll-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100vh;
+  z-index: var(--z-rail);
+  /* half-tone between paper and ink so the empty track reads (quietly) over
+     both light and dark sections scrolling behind it */
+  background: rgba(130, 128, 120, 0.22);
+  transform: scaleY(0);
+  transform-origin: top;
+  pointer-events: none;
+}
+
+.scroll-rail i {
+  position: absolute;
+  inset: 0;
+  background: var(--volt);
+  transform: scaleY(0);
+  transform-origin: top;
+  will-change: transform;
+}
+
+@media (max-width: 700px) {
+  .scroll-rail {
+    width: 2px;
+  }
+}
+
 /* ============ NAV ============ */
 .site-nav {
   position: fixed;

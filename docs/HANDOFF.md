@@ -1,6 +1,16 @@
 # HANDOFF
 
-## Current state (2026-07-18)
+## Current state (2026-07-19)
+Volt rail shipped — the last backlog item. src/app/rail.ts + .scroll-rail
+(chrome.css): 3px volt hairline fixed to the left viewport edge (2px <700px),
+fill scaleY-scrubbed by total page scroll, faint half-tone track, draws in
+after the preloader on the nav's beat. z-rail 20 sits above the HUD and
+under the menu overlay. Left edge chosen because HUD callouts edge-fade to
+zero within 8px of every edge and the scrollbar owns the right. Remaining
+nice-to-haves: real-phone feel test (magnetic pills / quality tier / rail),
+ISSUE-005 download half (parked).
+
+## Previous state (2026-07-18)
 Shipped and live: https://substrate-theta.vercel.app/ (Vercel auto-deploys
 main; repo github.com/cs-keni/substrate). Same-day polish pass landed four
 commits: OG/Twitter social card (public/og.jpg, real hero capture), a11y

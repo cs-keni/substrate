@@ -23,6 +23,7 @@ src/
   styles/               tokens.css, base.css, typography.css, + per-section css
   app/
     scroll.ts           ScrollSmoother init + shared ScrollTrigger defaults
+    rail.ts             volt rail — left-edge page scroll progress (z-rail 20)
     preloader.ts        counter + exit wipe
     nav.ts              sticky pill nav + full-screen menu
     sections/           hero, manifesto, stats, industries, footer (DOM+GSAP)

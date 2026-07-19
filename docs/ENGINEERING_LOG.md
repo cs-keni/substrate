@@ -1,5 +1,23 @@
 # ENGINEERING_LOG
 
+## 2026-07-19 (Volt rail — page scroll progress)
+- Last backlog item. New src/app/rail.ts + .scroll-rail chrome: 3px fixed
+  hairline on the LEFT viewport edge (2px under 700px), faint half-tone
+  track (rgba(130,128,120,.22) reads on both paper and dark sections),
+  volt fill scaleY-scrubbed by TOTAL page scroll via one ScrollTrigger
+  (start 0, end maxScroll — function-based so resize refresh recomputes).
+  Fill seeded from st.progress at init for browser scroll restore.
+- Left edge is the safe lane: HUD callouts edge-fade to 0 within 8px of
+  every edge (hud.ts), scrollbar owns the right, journey rail is
+  bottom-right. z-rail 20 (new token): above HUD (8), under menu (30) so
+  the overlay covers it.
+- Track draws down (scaleY 0→1, power3.inOut 1.1s) after the preloader,
+  same beat as the nav slide-in; initRail() runs in the runPreloader
+  .then(). Rail transform is GSAP-only, no CSS transition (from() rule).
+- Verified headless: fill matrix scaleY == scrollY/maxScroll at 0/0.35/0.5,
+  1440×900 + 375×812 screenshots clean, no console errors. Build green
+  (151.47 kB index / 57.33 kB gzip). Commit: (this commit)
+
 ## 2026-07-18 (Fix: industries spotlight/hover capped at 0.24 opacity)
 - Kenny's catch: "Powering what's next" list never got bright on hover.
   Root cause = the footer-wordmark bug class again: industries.ts

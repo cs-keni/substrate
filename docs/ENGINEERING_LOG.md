@@ -1,5 +1,13 @@
 # ENGINEERING_LOG
 
+## 2026-07-19 (Portfolio screenshots)
+- New docs/screenshots/: six 1440×900 JPGs captured from the LIVE site
+  (browse daemon, viewport screenshots at scroll fractions 0 / 0.17 /
+  0.25 / 0.5 / 0.68 / 0.9), ffmpeg -q:v 4. One per scene: hero,
+  generation, transmission, compute, footprint, stats. For Kenny's
+  portfolio site (raw.githubusercontent URLs). Regenerate the same way
+  if scenes change; avoid ~0.85 (black dissolve veil).
+
 ## 2026-07-19 (Volt rail — page scroll progress)
 - Last backlog item. New src/app/rail.ts + .scroll-rail chrome: 3px fixed
   hairline on the LEFT viewport edge (2px under 700px), faint half-tone

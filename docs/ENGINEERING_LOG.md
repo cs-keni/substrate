@@ -16,7 +16,7 @@
   .then(). Rail transform is GSAP-only, no CSS transition (from() rule).
 - Verified headless: fill matrix scaleY == scrollY/maxScroll at 0/0.35/0.5,
   1440×900 + 375×812 screenshots clean, no console errors. Build green
-  (151.47 kB index / 57.33 kB gzip). Commit: (this commit)
+  (151.47 kB index / 57.33 kB gzip). Commit: a62dfa3
 
 ## 2026-07-18 (Fix: industries spotlight/hover capped at 0.24 opacity)
 - Kenny's catch: "Powering what's next" list never got bright on hover.
